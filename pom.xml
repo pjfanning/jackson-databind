@@ -95,6 +95,12 @@
       <version>1.0.0</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.vavr</groupId>
+      <artifactId>vavr</artifactId>
+      <version>0.10.2</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find
