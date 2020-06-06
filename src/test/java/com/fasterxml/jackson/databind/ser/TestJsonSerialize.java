@@ -250,4 +250,11 @@ public class TestJsonSerialize
         final String JSON = m.writeValueAsString(new Response());
         assertEquals(aposToQuotes("{'a':'x','something':true}"), JSON);
     }
+
+    public void testSamplePojo() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        final String JSON = m.writeValueAsString(new SamplePojo());
+        System.out.println(">>>>>>>>>>>>>>>>> JSON " + JSON);
+    }
 }
