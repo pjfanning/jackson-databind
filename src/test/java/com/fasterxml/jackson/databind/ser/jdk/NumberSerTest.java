@@ -79,6 +79,15 @@ public class NumberSerTest extends DatabindTestUtil
         public NumberWrapper(Number v) { value = v; }
     }
 
+    static class BigDecimalHolder4667 {
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
+        private final BigDecimal value;
+
+        public BigDecimalHolder4667(String num) {
+            value = new BigDecimal(num);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -166,5 +175,10 @@ public class NumberSerTest extends DatabindTestUtil
         assertEquals(a2q("{'value':0.05}"), MAPPER.writeValueAsString(new NumberWrapper(Double.valueOf(0.05))));
         assertEquals(a2q("{'value':123}"), MAPPER.writeValueAsString(new NumberWrapper(BigInteger.valueOf(123))));
         assertEquals(a2q("{'value':0.025}"), MAPPER.writeValueAsString(new NumberWrapper(BigDecimal.valueOf(0.025))));
+    }
+
+    @Test
+    public void testNumberFormatPattern() throws Exception {
+        assertEquals(a2q("{'value':'2.0'}"), MAPPER.writeValueAsString(new BigDecimalHolder4667("2.000")));
     }
 }
