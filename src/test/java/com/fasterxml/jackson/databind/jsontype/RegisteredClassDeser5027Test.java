@@ -3,7 +3,9 @@ package com.fasterxml.jackson.databind.jsontype;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ public class RegisteredClassDeser5027Test extends DatabindTestUtil
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     static abstract class FooClassNoRegSubTypes { }
     static class FooClassNoRegSubTypesImpl extends FooClassNoRegSubTypes { }
+    static class FooClassNoRegSubTypesImpl2 extends FooClassNoRegSubTypes { }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
     @JsonSubTypes({@JsonSubTypes.Type(value = FooMinClassImpl.class)})
@@ -72,6 +75,21 @@ public class RegisteredClassDeser5027Test extends DatabindTestUtil
     }
 
     @Test
+    public void testDeserializationWithValidator() throws Exception
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new AllowSomeTypesValidator())
+                .build();
+        final String foo1 = mapper.writeValueAsString(new FooClassNoRegSubTypesImpl());
+        final String foo2 = mapper.writeValueAsString(new FooClassNoRegSubTypesImpl2());
+        FooClassNoRegSubTypes res1 = mapper.readValue(foo1, FooClassNoRegSubTypes.class);
+        assertTrue(res1 instanceof FooClassNoRegSubTypesImpl);
+        // next bit should fail because only FooClassNoRegSubTypesImpl is
+        // allowed by AllowSomeTypesValidator
+        assertThrows(InvalidTypeIdException.class, () -> MAPPER.readValue(foo2, FooClassNoRegSubTypes.class));
+    }
+
+    @Test
     public void testDeserializationIdMinimalClass() throws Exception
     {
         //trying to test if JsonSubTypes enforced
@@ -81,5 +99,18 @@ public class RegisteredClassDeser5027Test extends DatabindTestUtil
         assertTrue(res1 instanceof FooMinClassImpl);
         // next bit should fail because FooMinClassImpl2 is not listed as a subtype (see mapper config)
         assertThrows(InvalidTypeIdException.class, () -> MAPPER.readValue(foo2, FooMinClass.class));
+    }
+
+    private static class AllowSomeTypesValidator extends PolymorphicTypeValidator.Base {
+        @Override
+        public Validity validateSubType(MapperConfig<?> config, JavaType baseType,
+                                         JavaType subType) {
+            if (baseType.getRawClass() == FooClassNoRegSubTypes.class) {
+                if (subType.getRawClass() == FooClassNoRegSubTypesImpl.class) {
+                    return Validity.ALLOWED;
+                }
+            }
+            return Validity.DENIED;
+        }
     }
 }
