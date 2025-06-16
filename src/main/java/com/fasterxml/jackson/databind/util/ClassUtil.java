@@ -24,6 +24,19 @@ public final class ClassUtil
 
     private final static Iterator<Object> EMPTY_ITERATOR = Collections.emptyIterator();
 
+    // Class#isRecord() was added in JDK 16, earlier versions do not have it, so this will eval as null
+    private final static Method IS_RECORD;
+
+    static {
+        Method m = null;
+        try {
+            m = Class.class.getMethod("isRecord");
+        } catch (NoSuchMethodException e) {
+            // no-op, will be null
+        }
+        IS_RECORD = m;
+    }
+
     /*
     /**********************************************************
     /* Simple factory methods
@@ -299,6 +312,21 @@ public final class ClassUtil
      * @since 2.12
      */
     public static boolean isRecordType(Class<?> cls) {
+        if (IS_RECORD == null) {
+            // Class#isRecord() method was only added in JDK16
+            // JDK 14 and 15 do not have it, so this fallback is useful
+            // even if these non-LTS versions of Java are no longer supported
+            return fallbackCheckForRecordType(cls);
+        }
+        try {
+            return (Boolean) IS_RECORD.invoke(cls);
+        } catch (Exception e) {
+            // hopefully, this is not going to happen
+            return fallbackCheckForRecordType(cls);
+        }
+    }
+
+    private static boolean fallbackCheckForRecordType(Class<?> cls) {
         Class<?> parent = cls.getSuperclass();
         return (parent != null) && "java.lang.Record".equals(parent.getName());
     }
