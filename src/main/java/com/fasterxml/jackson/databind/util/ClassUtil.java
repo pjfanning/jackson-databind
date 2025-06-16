@@ -313,22 +313,14 @@ public final class ClassUtil
      */
     public static boolean isRecordType(Class<?> cls) {
         if (IS_RECORD == null) {
-            // Class#isRecord() method was only added in JDK16
-            // JDK 14 and 15 do not have it, so this fallback is useful
-            // even if these non-LTS versions of Java are no longer supported
-            return fallbackCheckForRecordType(cls);
+            return false;
         }
         try {
             return (Boolean) IS_RECORD.invoke(cls);
         } catch (Exception e) {
             // hopefully, this is not going to happen
-            return fallbackCheckForRecordType(cls);
+            return false;
         }
-    }
-
-    private static boolean fallbackCheckForRecordType(Class<?> cls) {
-        Class<?> parent = cls.getSuperclass();
-        return (parent != null) && "java.lang.Record".equals(parent.getName());
     }
 
     /**
