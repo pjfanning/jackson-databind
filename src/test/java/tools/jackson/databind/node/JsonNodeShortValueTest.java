@@ -331,7 +331,7 @@ public class JsonNodeShortValueTest
                 () ->  node.shortValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         // assert defaulting
@@ -364,7 +364,7 @@ public class JsonNodeShortValueTest
     }
 
     private void _assertAsShortFailForNonNumber(JsonNode node) {
-        _assertAsShortFailForNonNumber(node, "value type not numeric");
+        _assertAsShortFailForNonNumber(node, "value type not coercible");
     }
 
     private void _assertAsShortFailForNonNumber(JsonNode node, String extraFailMsg) {
@@ -373,7 +373,7 @@ public class JsonNodeShortValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
                 .contains("asShort()")
-                .contains("cannot convert value")
+                .contains("cannot coerce value")
                 .contains(extraFailMsg);
 
         // assert defaulting
