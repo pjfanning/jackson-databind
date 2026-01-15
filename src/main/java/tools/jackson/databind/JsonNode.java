@@ -586,7 +586,9 @@ public abstract class JsonNode
     public abstract Optional<String> stringValueOpt();
 
     /**
-     * @deprecated Use {@link #asString()} instead.
+     * Deprecated alias of {@link #stringValue()}.
+     *
+     * @deprecated Use {@link #stringValue()} instead.
      */
     @Deprecated // since 3.0
     public final String textValue() {
@@ -594,18 +596,19 @@ public abstract class JsonNode
     }
 
     /**
-     * Method that will try to convert value of this node to a {@code String}.
+     * Method that will try to convert or coerce value of this node to a {@code String}.
      * JSON Strings map naturally; other scalars map to their string representation
      * (including Binary data as Base64 encoded String);
-     * JSON {@code null}s map to empty String.
-     * Other values (including structured types like Objects and Arrays, and "missing"
-     * value) will result in a {@link JsonNodeException} being thrown.
+     * JSON {@code null}s and "missing nodes" map to empty String.
+     * Structured types like Objects and Arrays,
+     * will result in a {@link JsonNodeException} being thrown.
      *<p>
      * NOTE: this is NOT same as {@link #toString()} in that result is
      * <p>NOT VALID ENCODED JSON</p> for all nodes (although is for some, like
      * {@code NumberNode}s and {@code BooleanNode}s).
      *
-     * @return String representation of this node, if coercible; exception otherwise
+     * @return String representation of this node, if coercible (scalar type);
+     *    exception otherwise (structured type)
      *
      * @throws JsonNodeException if node cannot be coerced to a {@code String}
      */
@@ -613,17 +616,20 @@ public abstract class JsonNode
 
     /**
      * Similar to {@link #asString()}, but instead of throwing an exception for
-     * non-coercible values or coercing {@code null}, will return the specified default value.
+     * non-coercible values or coercing {@code null} (or missing value),
+     * will return the specified default value.
      */
     public abstract String asString(String defaultValue);
 
     /**
      * Similar to {@link #asString()}, but instead of throwing an exception for
-     * non-coercible values or coercing {@code null}, will return {@code Optional.empty()}.
+     * non-coercible values or coercing {@code null} (or missing value),
+     * will return {@code Optional.empty()}.
      */
     public abstract Optional<String> asStringOpt();
 
     /**
+     * Deprecate alias of {@link #asString()}
      * @deprecated Use {@link #asString()} instead.
      */
     @Deprecated // since 3.0
@@ -690,10 +696,10 @@ public abstract class JsonNode
     public abstract Optional<Boolean> booleanValueOpt();
 
     /**
-     * Method that will try to convert value of this node to a Java {@code boolean}.
+     * Method that will try to convert or coerce value of this node to a Java {@code boolean}.
      * JSON Booleans map naturally; Integer numbers other than 0 map to true, and
-     * 0 maps to false; {@code null} maps to false
-     * and Strings 'true' and 'false' map to corresponding values.
+     * 0 maps to false; {@code null} (and missing node) maps to false
+     * and Strings {@code "true"} and {@code "false"} map to corresponding values.
      * Other values (including structured types like Objects and Arrays) will
      * result in a {@link JsonNodeException} being thrown.
      *
@@ -705,13 +711,15 @@ public abstract class JsonNode
 
     /**
      * Similar to {@link #asBoolean()}, but instead of throwing an exception for
-     * non-coercible values or coercing {@code null}, will return the specified default value.
+     * non-coercible values or coercing {@code null} (or missing node),
+     * will return the specified default value.
      */
     public abstract boolean asBoolean(boolean defaultValue);
 
     /**
      * Similar to {@link #asBoolean()}, but instead of throwing an exception for
-     * non-coercible values or coercing {@code null}, will return {@code Optional.empty()}.
+     * non-coercible values or coercing {@code null} (or missing node),
+     * will return {@code Optional.empty()}.
      */
     public abstract Optional<Boolean> asBooleanOpt();
 
@@ -782,7 +790,9 @@ public abstract class JsonNode
      *   </li>
      *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0}))
+     *  <li>JSON Null (coerced to {@code 0}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code 0}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -870,7 +880,9 @@ public abstract class JsonNode
      *   </li>
      *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0}))
+     *  <li>JSON Null (coerced to {@code 0}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code 0}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -958,7 +970,9 @@ public abstract class JsonNode
      *   </li>
      *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0}))
+     *  <li>JSON Null (coerced to {@code 0}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code 0}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -1045,7 +1059,9 @@ public abstract class JsonNode
      *   </li>
      *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0}))
+     *  <li>JSON Null (coerced to {@code BigInteger.ZERO}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code BigInteger.ZERO}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -1125,7 +1141,9 @@ public abstract class JsonNode
      * <ul>
      *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0.0f})
+     *  <li>JSON Null (coerced to {@code 0.0f}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code 0.0f}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -1206,7 +1224,9 @@ public abstract class JsonNode
      * <ul>
      *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0.0d})
+     *  <li>JSON Null (coerced to {@code 0.0d}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code 0.0d}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -1289,7 +1309,9 @@ public abstract class JsonNode
      *   </li>
      *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@link BigDecimal#ZERO}))
+     *  <li>JSON Null (coerced to {@link BigDecimal#ZERO}))
+     *   </li>
+     *  <li>Missing node (coerced to {@link BigDecimal#ZERO}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
