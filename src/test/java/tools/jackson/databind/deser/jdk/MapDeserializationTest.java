@@ -116,12 +116,12 @@ public class MapDeserializationTest
     @Test
     public void testBigUntypedMap() throws Exception
     {
-        Map<String,Object> map = new LinkedHashMap<String,Object>();
+        Map<String,Object> map = new LinkedHashMap<>();
         for (int i = 0; i < 1100; ++i) {
             if ((i & 1) == 0) {
                 map.put(String.valueOf(i), Integer.valueOf(i));
             } else {
-                Map<String,Object> map2 = new LinkedHashMap<String,Object>();
+                Map<String,Object> map2 = new LinkedHashMap<>();
                 map2.put("x", Integer.valueOf(i));
                 map.put(String.valueOf(i), map2);
             }
@@ -154,9 +154,6 @@ public class MapDeserializationTest
         assertEquals("x", result.get("a"));
     }
 
-    /**
-     * Unit test for [JACKSON-185]
-     */
     @Test
     public void testUntypedMap3() throws Exception
     {
@@ -319,6 +316,37 @@ public class MapDeserializationTest
                 AbstractMapWrapper.class);
         assertNotNull(result);
         assertEquals(LinkedHashMap.class, result.values.getClass());
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, updating
+    /**********************************************************
+     */
+
+    @Test
+    public void testMapUpdate()
+    {
+        Map<String,String> map = new HashMap<>();
+        Object result = MAPPER.readerFor(Map.class)
+                .withValueToUpdate(map)
+                .readValue("{ }");
+        assertSame(map, result);
+        assertEquals(0, map.size());
+
+        result = MAPPER.readerFor(Map.class)
+                .withValueToUpdate(map)
+                .readValue("{\"key\": null }");
+        assertSame(map, result);
+        assertEquals(1, map.size());
+        assertEquals(Collections.singletonMap("key", null), map);
+
+        result = MAPPER.readerFor(Map.class)
+                .withValueToUpdate(map)
+                .readValue("{\"key\": false }");
+        assertSame(map, result);
+        assertEquals(1, map.size());
+        assertEquals(Collections.singletonMap("key", Boolean.FALSE), map);
     }
 
     /*
@@ -546,12 +574,29 @@ public class MapDeserializationTest
     @Test
     public void testMapError() throws Exception
     {
+        final TypeReference<?> TYPE = new TypeReference<Map<String,String>>() { };
         try {
-            Object result = MAPPER.readValue("[ 1, 2 ]",
-                    new TypeReference<Map<String,String>>() { });
+            Object result = MAPPER.readValue("[ 1, 2 ]", TYPE);
             fail("Expected an exception, but got result value: "+result);
         } catch (MismatchedInputException jex) {
-            verifyException(jex, "START_ARRAY");
+            verifyException(jex, "JsonToken.START_ARRAY");
+        }
+    
+        try {
+            Object result = MAPPER.readValue("true", TYPE);
+            fail("Expected an exception, but got result value: "+result);
+        } catch (MismatchedInputException jex) {
+            verifyException(jex, "from Boolean value (token `JsonToken.VALUE_TRUE`)");
+        }
+
+        Map<String,String> map = new HashMap<>();
+        try {
+            Object result = MAPPER.readerFor(TYPE)
+                    .withValueToUpdate(map)
+                    .readValue("true");
+            fail("Expected an exception, but got result value: "+result);
+        } catch (MismatchedInputException jex) {
+            verifyException(jex, "from Boolean value (token `JsonToken.VALUE_TRUE`)");
         }
     }
 

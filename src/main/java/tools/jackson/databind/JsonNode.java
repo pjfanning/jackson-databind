@@ -39,8 +39,8 @@ import tools.jackson.databind.util.ClassUtil;
  * method {@link TreeNode#traverse}, which will result in
  * a {@link JsonParser} being constructed. This can be used for (relatively)
  * efficient conversations between different representations; and it is what
- * core databind uses for methods like {@link ObjectMapper#treeToValue(TreeNode, Class)}
- * and {@link ObjectMapper#treeAsTokens(TreeNode)}
+ * core databind uses for methods like {@link ObjectMapper#treeToValue(JsonNode, Class)}
+ * and {@link ObjectMapper#treeAsTokens(JsonNode)}
  */
 public abstract class JsonNode
     extends JacksonSerializable.Base // i.e. implements JacksonSerializable
