@@ -581,7 +581,7 @@ public class MapDeserializationTest
         } catch (MismatchedInputException jex) {
             verifyException(jex, "JsonToken.START_ARRAY");
         }
-    
+
         try {
             Object result = MAPPER.readValue("true", TYPE);
             fail("Expected an exception, but got result value: "+result);

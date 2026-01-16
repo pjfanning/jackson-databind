@@ -13,12 +13,15 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // For [databind#5165]
 public class StringArrayDeserializer5165Test
+    extends DatabindTestUtil
 {
     static class Dst {
         public String[] array;
@@ -51,6 +54,22 @@ public class StringArrayDeserializer5165Test
     }
 
     @Test
+    public void nullsVanillaTest() {
+        ObjectMapper mapper = sharedMapper();
+        String[] arr = mapper.readValue("[ ]", String[].class);
+        assertEquals(0, arr.length);
+
+        arr = mapper.readValue("[null ]", String[].class);
+        assertEquals(1, arr.length);
+        assertNull(arr[0]);
+
+        arr = mapper.readValue("[ \"abc\", null ]", String[].class);
+        assertEquals(2, arr.length);
+        assertEquals("abc", arr[0]);
+        assertNull(arr[1]);
+}
+
+    @Test
     public void nullsFailTest() {
         ObjectMapper mapper = createMapperWithCustomDeserializer();
 
@@ -71,7 +90,6 @@ public class StringArrayDeserializer5165Test
                 .build();
 
         Dst dst = mapper.readValue("{\"array\":[\"\"]}", Dst.class);
-
         assertEquals(0, dst.array.length, "Null values should be skipped");
     }
 }

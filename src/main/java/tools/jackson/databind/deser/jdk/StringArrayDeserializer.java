@@ -287,9 +287,7 @@ public final class StringArrayDeserializer
                     }
                     if (t == JsonToken.VALUE_NULL) {
                         // 03-Feb-2017, tatu: Should we skip null here or not?
-                        if (_skipNullValues) {
-                            return NO_STRINGS;
-                        }
+                        value = null;
                     } else {
                         value = _parseString(p, ctxt, _nullProvider);
                     }
