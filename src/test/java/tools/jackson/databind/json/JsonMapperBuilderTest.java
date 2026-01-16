@@ -1,14 +1,11 @@
 package tools.jackson.databind.json;
 
 import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.StreamWriteFeature;
-import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.json.JsonWriteFeature;
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.MapperFeature;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.core.json.*;
+import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -46,11 +43,59 @@ public class JsonMapperBuilderTest extends DatabindTestUtil
         JsonMapper mapper = JsonMapper.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
             .disable(StreamReadFeature.AUTO_CLOSE_SOURCE)
+            .configure(StreamReadFeature.IGNORE_UNDEFINED, true)
             .build();
 
         assertNotNull(mapper);
         assertTrue(mapper.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION));
         assertFalse(mapper.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
+        assertTrue(mapper.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
+    }
+
+    @Test
+    public void testBuilderWithStreamWriteFeatures() {
+        JsonMapper mapper = JsonMapper.builder()
+            .enable(StreamWriteFeature.STRICT_DUPLICATE_DETECTION)
+            .disable(StreamWriteFeature.AUTO_CLOSE_TARGET)
+            .configure(StreamWriteFeature.IGNORE_UNKNOWN, true)
+            .build();
+
+        assertNotNull(mapper);
+        assertTrue(mapper.isEnabled(StreamWriteFeature.STRICT_DUPLICATE_DETECTION));
+        assertFalse(mapper.isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET));
+        assertTrue(mapper.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
+    }
+
+    @Test
+    public void testBuilderWithJsonReadFeatures() {
+        JsonMapper mapper = JsonMapper.builder()
+            .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+            .disable(JsonReadFeature.ALLOW_MISSING_VALUES)
+            .configure(JsonReadFeature.ALLOW_TRAILING_COMMA, false)
+            .configure(JsonReadFeature.ALLOW_SINGLE_QUOTES, true)
+            .build();
+
+        assertNotNull(mapper);
+        assertTrue(mapper.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
+        assertFalse(mapper.isEnabled(JsonReadFeature.ALLOW_MISSING_VALUES));
+        assertFalse(mapper.isEnabled(JsonReadFeature.ALLOW_TRAILING_COMMA));
+        assertTrue(mapper.isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES));
+    }
+
+    @Test
+    public void testBuilderWithJsonWriteFeatures() {
+        JsonMapper mapper = JsonMapper.builder()
+                .enable(JsonWriteFeature.ESCAPE_NON_ASCII)
+                .disable(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
+                .configure(JsonWriteFeature.ESCAPE_FORWARD_SLASHES, false)
+                .configure(JsonWriteFeature.WRITE_HEX_UPPER_CASE, true)
+                .build();
+
+            assertNotNull(mapper);
+            assertTrue(mapper.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
+            assertFalse(mapper.isEnabled(JsonWriteFeature.QUOTE_PROPERTY_NAMES));
+            assertFalse(mapper.isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES));
+            assertTrue(mapper.isEnabled(JsonWriteFeature.WRITE_HEX_UPPER_CASE));
     }
 
     // Test 2: Builder with mapper features
