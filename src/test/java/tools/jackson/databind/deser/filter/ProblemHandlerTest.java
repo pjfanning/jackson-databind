@@ -12,6 +12,8 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.deser.ValueInstantiator;
+import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.jsontype.TypeIdResolver;
@@ -253,6 +255,16 @@ public class ProblemHandlerTest
             .build();
         SingleValuedEnum result = mapper.readValue("3", SingleValuedEnum.class);
         assertEquals(SingleValuedEnum.A, result);
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new WeirdNumberHandler("foo"))
+                .build();
+        try {
+            mapper.readValue("3", SingleValuedEnum.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
     }
 
     @Test
@@ -270,6 +282,16 @@ public class ProblemHandlerTest
                 .build();
         UUID result2 = mapper.readValue(q("not a uuid!"), UUID.class);
         assertNull(result2);
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new WeirdStringHandler("foo"))
+                .build();
+        try {
+            mapper.readValue(q("not a uuid!"), UUID.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
     }
 
     // [databind#3784]: Base64 decoding
@@ -299,6 +321,17 @@ public class ProblemHandlerTest
                 BaseWrapper.class);
         assertNotNull(w);
         assertEquals(BaseImpl.class, w.value.getClass());
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new UnknownTypeIdHandler(String.class))
+                .build();
+        try {
+            mapper.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
+                    BaseWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "into non-subtype: `java.lang.String`");
+        }
     }
 
     @Test
@@ -325,6 +358,17 @@ public class ProblemHandlerTest
                 BaseWrapper.class);
         assertNotNull(w);
         assertEquals(BaseImpl.class, w.value.getClass());
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new MissingTypeIdHandler(String.class))
+                .build();
+        try {
+            mapper.readValue("{\"value\":{\"a\":4}}",
+                    BaseWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "into non-subtype: `java.lang.String`");
+        }
     }
 
     @Test
@@ -360,9 +404,19 @@ public class ProblemHandlerTest
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new InstantiationProblemHandler(BustedCtor.INST))
             .build();
-        BustedCtor w = mapper.readValue("{ }",
-                BustedCtor.class);
+        BustedCtor w = mapper.readValue("{ }", BustedCtor.class);
         assertNotNull(w);
+
+        // and then broken handling
+        mapper = jsonMapperBuilder()
+                .addHandler(new InstantiationProblemHandler("foo"))
+                .build();
+        try {
+            mapper.readValue("{ }", BustedCtor.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
     }
 
     @Test
@@ -378,6 +432,18 @@ public class ProblemHandlerTest
         NoDefaultCtor w = mapper.readValue("{ \"x\" : true }", NoDefaultCtor.class);
         assertNotNull(w);
         assertEquals(13, w.value);
+
+        // And then broken case
+        mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .addHandler(new MissingInstantiationHandler("foo"))
+                .build();
+        try {
+            mapper.readValue("{ \"x\" : true }", NoDefaultCtor.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
     }
 
     @Test
@@ -388,5 +454,15 @@ public class ProblemHandlerTest
             .build();
         Integer v = mapper.readValue("true", Integer.class);
         assertEquals(Integer.valueOf(13), v);
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new WeirdTokenHandler("foo"))
+                .build();
+        try{
+            mapper.readValue("true", Integer.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
     }
 }
