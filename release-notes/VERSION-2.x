@@ -41,7 +41,7 @@ Project: jackson-databind
   `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` enabled
  (implemented by @cowtowncoder, w/ Claude code)
 
-2.20.2 (not yet released)
+2.20.2 (19-Jan-2026)
 
 #5393: `@JsonAnyGetter` property gets included in generated schema since 2.19.0
  (reported by @victor-noel-pfx)
