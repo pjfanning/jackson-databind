@@ -3,7 +3,7 @@ package tools.jackson.databind.jsonFormatVisitors;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
 
-public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializationContext
+public interface JsonArrayFormatVisitor extends WithSettableSerializationContext
 {
     /**
      * Visit method called for structured types, as well as possibly
@@ -27,17 +27,19 @@ public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializati
      * especially as it is guaranteed to implement all the method
      * of the interface, even if new methods are getting added.
      */
-    public static class Base implements JsonArrayFormatVisitor {
-        protected SerializationContext _provider;
+    public static class Base
+        implements JsonArrayFormatVisitor
+    {
+        protected SerializationContext _context;
 
         public Base() { }
-        public Base(SerializationContext p) { _provider = p; }
+        public Base(SerializationContext p) { _context = p; }
 
         @Override
-        public SerializationContext getContext() { return _provider; }
+        public SerializationContext getContext() { return _context; }
 
         @Override
-        public void setContext(SerializationContext c) { _provider = c; }
+        public void setContext(SerializationContext c) { _context = c; }
 
         @Override
         public void itemsFormat(JsonFormatVisitable handler, JavaType elementType) { }

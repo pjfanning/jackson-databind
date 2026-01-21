@@ -10,7 +10,7 @@ import tools.jackson.databind.SerializationContext;
  * In most cases it will make more sense to extend {@link JsonFormatVisitorWrapper.Base}
  * instead of directly implementing this interface.
  */
-public interface JsonFormatVisitorWrapper extends JsonFormatVisitorWithSerializationContext
+public interface JsonFormatVisitorWrapper extends WithSettableSerializationContext
 {
     /**
      * @param type Declared type of visited property (or List element) in Java
