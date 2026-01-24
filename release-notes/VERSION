@@ -72,6 +72,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.0 (03-Oct-2025)
 
+#2156: JsonTypeId-only class is not serialized properly
+ (reported by @alexzam)
 #3281: Auto-detect Java 17 sealed classes without manually specifying
   them in `@JsonSubTypes` (actual fix via #5025)
 #5319: `TreeTraversingParser` does not respect `DeserializationFeature.ACCEPT_FLOAT_AS_INT`
