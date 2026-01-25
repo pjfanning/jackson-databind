@@ -12,6 +12,7 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.ExceptionUtil;
 
 /**
  * A general-purpose deserializer that uses a {@link Function} or {@link BiFunction}
@@ -137,9 +138,8 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T>
     private T _handleException(String text, DeserializationContext ctxt, Exception e)
         throws JacksonException
     {
-        if (e instanceof JacksonException je) {
-            throw je;
-        }
+        e = ExceptionUtil.rethrowIfNoWrap(ctxt, e);
+
         String msg = "not a valid textual representation";
         String m2 = e.getMessage();
         if (m2 != null) {
