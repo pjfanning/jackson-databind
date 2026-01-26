@@ -1996,5 +1996,5 @@ Hélios Gilles (@RoiSoleil)
   [2.21.0]
 
 Lee Jiwon (@dlwldnjs1009)
- * Contributed #3884: Add `ObjectNode.put(JsonPointe, JsonNode)` method
+ * Contributed #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
   [2.22.0]

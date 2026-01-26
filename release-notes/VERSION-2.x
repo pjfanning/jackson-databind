@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.22.0 (not yet released)
 
-#3884: Add `ObjectNode.put(JsonPointe, JsonNode)` method
+#3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
