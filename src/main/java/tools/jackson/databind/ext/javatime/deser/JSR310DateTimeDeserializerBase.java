@@ -165,10 +165,11 @@ public abstract class JSR310DateTimeDeserializerBase<T>
         return enabled;
     }
     
-    protected void _throwNoNumericTimestampNeedTimeZone(JsonParser p, DeserializationContext ctxt)
+    @SuppressWarnings("unchecked")
+    protected <BOGUS> BOGUS _throwNoNumericTimestampNeedTimeZone(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        ctxt.reportInputMismatch(handledType(),
+        return (BOGUS) ctxt.reportInputMismatch(handledType(),
 "raw timestamp (%d) not allowed for `%s`: need additional information such as an offset or time-zone (see class Javadocs)",
 p.getNumberValue(), handledType().getName());
     }
