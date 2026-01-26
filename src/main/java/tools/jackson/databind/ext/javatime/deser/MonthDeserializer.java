@@ -70,9 +70,8 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             }
             // default: 0‑based index (0 == JANUARY)
             if (raw < 0 || raw >= 12) {
-                ctxt.handleWeirdNumberValue(handledType(),
+                return (Month) ctxt.handleWeirdNumberValue(handledType(),
                         raw, "Month index (%s) outside 0-11 range", raw);
-                return null; // never gets here, but compiler doesn't know
             }
             return Month.values()[raw];
         }
@@ -98,7 +97,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
                 return parsed;
             }
             if (t != JsonToken.VALUE_NUMBER_INT) {
-                _reportWrongToken(ctxt, JsonToken.VALUE_NUMBER_INT, Integer.class.getName());
+                return _reportWrongToken(ctxt, JsonToken.VALUE_NUMBER_INT, Integer.class.getName());
             }
             int month = p.getIntValue();
             if (p.nextToken() != JsonToken.END_ARRAY) {
@@ -143,9 +142,8 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
                 // Handle English month names such as "JANUARY" from the actual Month Enum names
                 if (possibleMonthStringValues.contains(string)) {
                     return Month.valueOf(string);
-                } else {
-                    throw new InvalidFormatException(p, String.format("Cannot deserialize value of type `java.time.Month` from String \"%s\": not one of the values accepted for Enum class: %s", string, Arrays.toString(Month.values())), string, Month.class);
                 }
+                throw new InvalidFormatException(p, String.format("Cannot deserialize value of type `java.time.Month` from String \"%s\": not one of the values accepted for Enum class: %s", string, Arrays.toString(Month.values())), string, Month.class);
             }
             return Month.from(_formatter.parse(string));
         } catch (DateTimeException e) {
@@ -166,8 +164,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             return Month.of(oneBasedMonthNumber);
         }
         // If out of range, throw an exception
-        ctxt.handleWeirdNumberValue(handledType(),
+        return (Month) ctxt.handleWeirdNumberValue(handledType(),
                 oneBasedMonthNumber, "Month number %s not allowed for 1-based Month.", oneBasedMonthNumber);
-        return null; // never gets here, but compiler doesn't know
     }
 }
