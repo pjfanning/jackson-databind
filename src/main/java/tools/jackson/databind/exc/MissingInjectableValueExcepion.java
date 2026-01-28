@@ -5,6 +5,10 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindException;
 
+/**
+ * @deprecated Use {@link MissingInjectableValueException} instead.
+ */
+@Deprecated
 public class MissingInjectableValueExcepion
     extends DatabindException
 {
@@ -23,10 +27,14 @@ public class MissingInjectableValueExcepion
         _beanInstance = beanInstance;
     }
 
+    /**
+     * @deprecated Use {@link MissingInjectableValueException#from} instead.
+     */
+    @Deprecated
     public static MissingInjectableValueExcepion from(JsonParser p, String msg,
             Object valueId, BeanProperty forProperty, Object beanInstance)
     {
-        return new MissingInjectableValueExcepion(p, msg, valueId, forProperty, beanInstance);
+        return MissingInjectableValueException.from(p, msg, valueId, forProperty, beanInstance);
     }
 
     public Object getValueId() { return _valueId; }
