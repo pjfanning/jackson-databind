@@ -8,7 +8,7 @@ import tools.jackson.databind.BeanProperty;
 public class MissingInjectableValueException
     extends MissingInjectableValueExcepion
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     protected MissingInjectableValueException(JsonParser p, String msg,
             Object valueId, BeanProperty forProperty, Object beanInstance)
@@ -21,4 +21,11 @@ public class MissingInjectableValueException
     {
         return new MissingInjectableValueException(p, msg, valueId, forProperty, beanInstance);
     }
+
+    @Override
+    public Object getValueId() { return super.getValueId(); }
+    @Override
+    public BeanProperty getForProperty() { return super.getForProperty(); }
+    @Override
+    public Object getBeanInstance() { return super.getBeanInstance(); }
 }

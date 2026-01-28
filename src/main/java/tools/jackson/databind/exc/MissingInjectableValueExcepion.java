@@ -6,13 +6,13 @@ import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindException;
 
 /**
- * @deprecated Use {@link MissingInjectableValueException} instead.
+ * @deprecated Since 3.1 use {@link MissingInjectableValueException} instead.
  */
-@Deprecated
+@Deprecated // @since 3.1
 public class MissingInjectableValueExcepion
     extends DatabindException
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     protected final Object _valueId;
     protected final BeanProperty _forProperty;
