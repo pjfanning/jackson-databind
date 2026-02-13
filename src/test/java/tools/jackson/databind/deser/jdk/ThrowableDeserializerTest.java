@@ -290,7 +290,7 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
 
     /*
     /**********************************************************
-    /* Tests for stackTrace handling
+    /* Tests for stackTrace handling [databind#5674]
     /**********************************************************
      */
 
