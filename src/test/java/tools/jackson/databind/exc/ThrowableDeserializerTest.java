@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser.jdk;
+package tools.jackson.databind.exc;
 
 import java.io.IOException;
 
@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.jdk.ThrowableDeserializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
