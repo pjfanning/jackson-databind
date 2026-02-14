@@ -350,7 +350,9 @@ public class JDKFromStringDeserializer
             boolean isWindowsRootFound = false;
             for (File file : File.listRoots()) {
                 String path = file.getPath();
-                if (path.length() >= 2 && Character.isLetter(path.charAt(0)) && path.charAt(1) == ':') {
+                if (path.length() >= 2
+                        && path.charAt(1) == ':'
+                        && Character.isLetter(path.charAt(0))) {
                     isWindowsRootFound = true;
                     break;
                 }
@@ -365,8 +367,10 @@ public class JDKFromStringDeserializer
                 return Paths.get(value);
             }
 
-            if (areWindowsFilePathsSupported) {
-                if (value.length() >= 2 && Character.isLetter(value.charAt(0)) && value.charAt(1) == ':') {
+            if (value.length() >= 2
+                    && value.charAt(1) == ':'
+                    && Character.isLetter(value.charAt(0))) {
+                if (areWindowsFilePathsSupported) {
                     return Paths.get(value);
                 }
             }
