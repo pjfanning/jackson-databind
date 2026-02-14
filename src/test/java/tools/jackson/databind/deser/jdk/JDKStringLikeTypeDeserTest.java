@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,19 +50,29 @@ public class JDKStringLikeTypeDeserTest
     @Test
     public void testClass() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertSame(String.class, mapper.readValue(q("java.lang.String"), Class.class));
+        ObjectReader classR = MAPPER.readerFor(Class.class);
+        assertSame(String.class, classR.readValue(q("java.lang.String")));
 
         // then primitive types
-        assertSame(Boolean.TYPE, mapper.readValue(q("boolean"), Class.class));
-        assertSame(Byte.TYPE, mapper.readValue(q("byte"), Class.class));
-        assertSame(Short.TYPE, mapper.readValue(q("short"), Class.class));
-        assertSame(Character.TYPE, mapper.readValue(q("char"), Class.class));
-        assertSame(Integer.TYPE, mapper.readValue(q("int"), Class.class));
-        assertSame(Long.TYPE, mapper.readValue(q("long"), Class.class));
-        assertSame(Float.TYPE, mapper.readValue(q("float"), Class.class));
-        assertSame(Double.TYPE, mapper.readValue(q("double"), Class.class));
-        assertSame(Void.TYPE, mapper.readValue(q("void"), Class.class));
+        assertSame(Boolean.TYPE, classR.readValue(q("boolean")));
+        assertSame(Byte.TYPE, classR.readValue(q("byte")));
+        assertSame(Short.TYPE, classR.readValue(q("short")));
+        assertSame(Character.TYPE, classR.readValue(q("char")));
+        assertSame(Integer.TYPE, classR.readValue(q("int")));
+        assertSame(Long.TYPE, classR.readValue(q("long")));
+        assertSame(Float.TYPE, classR.readValue(q("float")));
+        assertSame(Double.TYPE, classR.readValue(q("double")));
+        assertSame(Void.TYPE, classR.readValue(q("void")));
+
+        // and then error handling
+        try {
+            classR.readValue(q("UNKNOWN"));
+            fail("Should not pass");
+        } catch (ValueInstantiationException e) {
+            verifyException(e, "instance of `java.lang.Class`");
+            // 13-Feb-2026, tatu: Not a good message, should improve but...
+            verifyException(e, "UNKNOWN");
+        }
     }
 
     @Test
@@ -77,11 +88,12 @@ public class JDKStringLikeTypeDeserTest
     @Test
     public void testCurrency() throws Exception
     {
+        ObjectReader r = MAPPER.readerFor(Currency.class);
         Currency usd = Currency.getInstance("USD");
-        assertEquals(usd, MAPPER.readValue(q("USD"), Currency.class));
+        assertEquals(usd, r.readValue(q("USD")));
 
         try {
-            MAPPER.readValue(q("poobah"), Currency.class);
+            r.readValue(q("poobah"));
             fail("Should not pass!");
         } catch (InvalidFormatException e) {
             verifyException(e, "Cannot deserialize value of type `java.util.Currency` from String \"Poobah\"");
