@@ -16,7 +16,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EnumDeserilizationFeatureOrderTest
+public class EnumDeserializationFeatureOrderTest
     extends DatabindTestUtil
 {
     /*
@@ -84,7 +84,7 @@ public class EnumDeserilizationFeatureOrderTest
 
         EnumFruit simpleEnumA = reader.readValue(q(""));
 
-        assertEquals(null, simpleEnumA);
+        assertNull( simpleEnumA);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class EnumDeserilizationFeatureOrderTest
 
         EnumLetter defaulted = reader.readValue(q("unknownValue"));
 
-        assertEquals(null, defaulted);
+        assertNull( defaulted);
     }
 
     @Test

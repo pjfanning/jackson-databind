@@ -1,10 +1,13 @@
-package tools.jackson.databind.jsontype;
+package tools.jackson.databind.jsontype.deduct;
 
 import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -12,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,6 +65,25 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
   static enum Enum3711 { A, B }
+
+    // [databind#4327]
+    @JsonTypeInfo(use = DEDUCTION)
+    @JsonSubTypes({
+        @Type(value = DeductionBean4327_1.class),
+        @Type(value = DeductionBean4327_2.class)
+    })
+    interface Deduction4327 { }
+
+    static class DeductionBean4327_1 implements Deduction4327 {
+        public int x;
+    }
+
+    static class DeductionBean4327_2 implements Deduction4327 {
+        @JsonAlias(value = {"y", "Y", "yy", "ff", "X"})
+        public int y;
+
+        public void setY(int y) { this.y = y; }
+    }
 
   /*
   /**********************************************************
@@ -130,7 +151,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 
   @Test
   public void testCaseInsensitiveInference() throws Exception {
-    Cat cat = JsonMapper.builder() // Don't use shared mapper!
+    Cat cat = jsonMapperBuilder() // Don't use shared mapper!
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
       .build()
       .readValue(deadCatJson.toUpperCase(), Cat.class);
@@ -220,33 +241,27 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 
   @Test
   public void testAmbiguousClasses() throws Exception {
-    try {
-      ObjectMapper mapper = JsonMapper.builder() // Don't use shared mapper!
-              .registerSubtypes(AnotherLiveCat.class)
-              .build();
-      /*Cat cat =*/ mapper.readValue(liveCatJson, Cat.class);
-      fail("Should not get here");
-    } catch (InvalidDefinitionException e) {
-        verifyException(e, "Subtypes ");
-        verifyException(e, "have the same signature");
-        verifyException(e, "cannot be uniquely deduced");
-    }
+    ObjectMapper mapper = jsonMapperBuilder() // Don't use shared mapper!
+            .registerSubtypes(AnotherLiveCat.class)
+            .build();
+    InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+            () -> mapper.readValue(liveCatJson, Cat.class));
+    verifyException(e, "Subtypes ");
+    verifyException(e, "have the same signature");
+    verifyException(e, "cannot be uniquely deduced");
   }
 
   @Test
   public void testAmbiguousProperties() throws Exception {
-    try {
-      /*Cat cat =*/ MAPPER.readValue(ambiguousCatJson, Cat.class);
-      fail("Should not get here");
-    } catch (InvalidTypeIdException e) {
-        verifyException(e, "Cannot deduce unique subtype");
-    }
+    InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+            () -> MAPPER.readValue(ambiguousCatJson, Cat.class));
+    verifyException(e, "Cannot deduce unique subtype");
   }
 
   @Test
   public void testFailOnInvalidSubtype() throws Exception {
     // Given:
-    JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
+    ObjectMapper mapper = jsonMapperBuilder() // Don't use shared mapper!
       .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
       .build();
     // When:
@@ -262,7 +277,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   @Test
   public void testDefaultImpl() throws Exception {
     // Given:
-    JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
+    ObjectMapper mapper = jsonMapperBuilder() // Don't use shared mapper!
       .addMixIn(Cat.class, CatMixin.class)
       .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
       .build();
@@ -311,4 +326,14 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   {
       assertEquals(q("B"), MAPPER.writeValueAsString(Enum3711.B));
   }
+
+    // [databind#4327]
+    @ParameterizedTest
+    @ValueSource(strings = {"y", "Y", "yy", "ff", "X"})
+    public void testAliasWithPolymorphicDeduction4327(String field) throws Exception {
+        String json = a2q(String.format("{'%s': 2 }", field));
+        Deduction4327 value = MAPPER.readValue(json, Deduction4327.class);
+        assertNotNull(value);
+        assertEquals(2, ((DeductionBean4327_2) value).y);
+    }
 }
