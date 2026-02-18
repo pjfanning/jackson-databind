@@ -43,10 +43,10 @@ public class MapSerializationTest extends DatabindTestUtil
     {
         @Override
         public void serialize(Map<String,String> value,
-                JsonGenerator gen, SerializationContext provider)
+                JsonGenerator g, SerializationContext ctxt)
         {
             // just use standard Map.toString(), output as JSON String
-            gen.writeString(value.toString());
+            g.writeString(value.toString());
         }
     }
 
@@ -95,7 +95,6 @@ public class MapSerializationTest extends DatabindTestUtil
         }
     }
 
-    @SuppressWarnings("serial")
     static class WatMap extends HashMap<Wat,Boolean> { }
 
     // [databind#943]
@@ -174,8 +173,8 @@ public class MapSerializationTest extends DatabindTestUtil
     static class KarlSerializer extends ValueSerializer<String>
     {
         @Override
-        public void serialize(String value, JsonGenerator gen, SerializationContext provider) {
-            gen.writeName("Karl");
+        public void serialize(String value, JsonGenerator g, SerializationContext ctxt) {
+            g.writeName("Karl");
         }
     }
 
@@ -236,9 +235,9 @@ public class MapSerializationTest extends DatabindTestUtil
 
     static class ABCKeySerializer extends ValueSerializer<ABCKey> {
         @Override
-        public void serialize(ABCKey value, JsonGenerator gen,
-                SerializationContext provider) {
-            gen.writeName("xxx"+value);
+        public void serialize(ABCKey value, JsonGenerator g,
+                SerializationContext ctxt) {
+            g.writeName("xxx"+value);
         }
     }
 
@@ -247,8 +246,8 @@ public class MapSerializationTest extends DatabindTestUtil
         private String _null;
         public NullKeySerializer(String s) { _null = s; }
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializationContext provider) {
-            gen.writeName(_null);
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt) {
+            g.writeName(_null);
         }
     }
 
@@ -257,15 +256,15 @@ public class MapSerializationTest extends DatabindTestUtil
         private String _null;
         public NullValueSerializer(String s) { _null = s; }
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializationContext provider) {
-            gen.writeString(_null);
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt) {
+            g.writeString(_null);
         }
     }
 
     static class DefaultKeySerializer extends ValueSerializer<Object>
     {
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializationContext provider) {
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt) {
             g.writeName("DEFAULT:"+value);
         }
     }
@@ -673,8 +672,7 @@ public class MapSerializationTest extends DatabindTestUtil
 
     // [databind#4773]
     @Test
-    void testSerializationWithGenericObjectKeys()
-            throws Exception
+    void testSerializationWithGenericObjectKeys() throws Exception
     {
         ObjectContainer4773 entity = new ObjectContainer4773();
         entity.exampleMap.put(5, "N_TEXT");
@@ -695,8 +693,7 @@ public class MapSerializationTest extends DatabindTestUtil
 
     // [databind#4773]
     @Test
-    void testSerWithNullType()
-            throws Exception
+    void testSerWithNullType() throws Exception
     {
         ObjectContainer4773 entity = new ObjectContainer4773();
         entity.exampleMap.put(null, "AUD_TEXT");

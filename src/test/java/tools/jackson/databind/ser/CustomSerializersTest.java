@@ -311,6 +311,8 @@ public class CustomSerializersTest extends DatabindTestUtil
 
     static class SerializerModifierModule extends SimpleModule
     {
+        private static final long serialVersionUID = 1L;
+
         protected ValueSerializerModifier modifier;
 
         public SerializerModifierModule(ValueSerializerModifier modifier)
@@ -337,6 +339,8 @@ public class CustomSerializersTest extends DatabindTestUtil
 
     static class RemovingModifier extends ValueSerializerModifier
     {
+        private static final long serialVersionUID = 1L;
+
         private final String _removedProperty;
 
         public RemovingModifier(String remove) { _removedProperty = remove; }
@@ -359,11 +363,13 @@ public class CustomSerializersTest extends DatabindTestUtil
 
     static class ReorderingModifier extends ValueSerializerModifier
     {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public List<BeanPropertyWriter> orderProperties(SerializationConfig config,
                 BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties)
         {
-            TreeMap<String,BeanPropertyWriter> props = new TreeMap<String,BeanPropertyWriter>();
+            TreeMap<String,BeanPropertyWriter> props = new TreeMap<>();
             for (BeanPropertyWriter bpw : beanProperties) {
                 props.put(bpw.getName(), bpw);
             }
@@ -373,6 +379,8 @@ public class CustomSerializersTest extends DatabindTestUtil
 
     static class ReplacingModifier extends ValueSerializerModifier
     {
+        private static final long serialVersionUID = 1L;
+
         private final ValueSerializer<?> _serializer;
 
         public ReplacingModifier(ValueSerializer<?> s) { _serializer = s; }
@@ -386,6 +394,8 @@ public class CustomSerializersTest extends DatabindTestUtil
 
     static class BuilderModifier extends ValueSerializerModifier
     {
+        private static final long serialVersionUID = 1L;
+
         private final ValueSerializer<?> _serializer;
 
         public BuilderModifier(ValueSerializer<?> ser) {
@@ -438,6 +448,8 @@ public class CustomSerializersTest extends DatabindTestUtil
 
     static class EmptyBeanModifier extends ValueSerializerModifier
     {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
                 BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties)
@@ -462,6 +474,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     // [Issue#539]: use post-modifier
     static class EmptyBeanModifier539 extends ValueSerializerModifier
     {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
                 BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties)
@@ -479,6 +493,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     // [databind#120], arrays, collections, maps
 
     static class ArraySerializerModifier extends ValueSerializerModifier {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public ValueSerializer<?> modifyArraySerializer(SerializationConfig config,
                 ArrayType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
@@ -491,6 +507,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     }
 
     static class CollectionSerializerModifier extends ValueSerializerModifier {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public ValueSerializer<?> modifyCollectionSerializer(SerializationConfig config,
                 CollectionType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
@@ -503,6 +521,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     }
 
     static class MapSerializerModifier extends ValueSerializerModifier {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public ValueSerializer<?> modifyMapSerializer(SerializationConfig config,
                 MapType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
@@ -515,6 +535,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     }
 
     static class EnumSerializerModifier extends ValueSerializerModifier {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public ValueSerializer<?> modifyEnumSerializer(SerializationConfig config,
                 JavaType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
@@ -527,6 +549,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     }
 
     static class KeySerializerModifier extends ValueSerializerModifier {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public ValueSerializer<?> modifyKeySerializer(SerializationConfig config,
                 JavaType valueType, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
@@ -581,6 +605,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     @interface Hidden {}
 
     static class HiddenFieldModule5414 extends SimpleModule {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public void setupModule(SetupContext context) {
           super.setupModule(context);
@@ -589,8 +615,11 @@ public class CustomSerializersTest extends DatabindTestUtil
     }
 
     static class HiddenFieldRemover5414 extends ValueSerializerModifier {
+        private static final long serialVersionUID = 1L;
+
         @Override
-        public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties) {
+        public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
+                BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties) {
             return beanProperties.stream()
                     .filter(writer -> !isHidden(writer.getMember()))
                     .collect(Collectors.toCollection(ArrayList::new));
@@ -625,12 +654,12 @@ public class CustomSerializersTest extends DatabindTestUtil
 
         module.addSerializer(Collection.class, new ValueSerializer<Collection>() {
             @Override
-            public void serialize(Collection value, JsonGenerator gen, SerializationContext provider)
+            public void serialize(Collection value, JsonGenerator g, SerializationContext ctxt)
             {
                 if (!value.isEmpty()) {
-                    collectionSerializer.serialize(value, gen, provider);
+                    collectionSerializer.serialize(value, g, ctxt);
                 } else {
-                    gen.writeNull();
+                    g.writeNull();
                 }
             }
 
@@ -653,7 +682,7 @@ public class CustomSerializersTest extends DatabindTestUtil
                     @Override
                     public Map<String, Integer> convert(Immutable value)
                     {
-                        HashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
+                        HashMap<String,Integer> map = new LinkedHashMap<>();
                         map.put("x", value.x());
                         map.put("y", value.y());
                         return map;
