@@ -10,7 +10,7 @@ Project: jackson-databind
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.1 (not yet released)
+2.21.1 (22-Feb-2026)
 
 #5184: `@JsonIgnore` on record method applied to record matching
   field at deserialization
