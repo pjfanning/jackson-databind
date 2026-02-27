@@ -13,11 +13,13 @@ import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SetterlessProperties501Test extends DatabindTestUtil {
+class SetterlessProperties501Test extends DatabindTestUtil
+{
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     static class Poly {
         public int id;
 
-        public Poly(int id) {
+        protected Poly(int id) {
             this.id = id;
         }
 
@@ -27,23 +29,21 @@ class SetterlessProperties501Test extends DatabindTestUtil {
     }
 
     static class Issue501Bean {
-        protected Map<String, Poly> m = new HashMap<String, Poly>();
-        protected List<Poly> l = new ArrayList<Poly>();
+        protected Map<String, Poly> m = new HashMap<>();
+        protected List<Poly> l = new ArrayList<>();
 
         protected Issue501Bean() {
         }
 
-        public Issue501Bean(String key, Poly value) {
+        Issue501Bean(String key, Poly value) {
             m.put(key, value);
             l.add(value);
         }
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public List<Poly> getList() {
             return l;
         }
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public Map<String, Poly> getMap() {
             return m;
         }
@@ -55,14 +55,17 @@ class SetterlessProperties501Test extends DatabindTestUtil {
     // For [databind#501]
     @JacksonTestFailureExpected
     @Test
-    void setterlessWithPolymorphic() throws Exception {
+    void setterlessWithPolymorphic() throws Exception
+    {
         Issue501Bean input = new Issue501Bean("a", new Poly(13));
         ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL)
                 .build();
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(input);
-
+//System.err.println("JSON:\n"+json);
         Issue501Bean output = mapper.readValue(json, Issue501Bean.class);
         assertNotNull(output);
 
