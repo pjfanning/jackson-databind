@@ -122,11 +122,26 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
     /**
-     * Lazily collected list of properties that are explicitly ignored,
-     * including both per-property markers ({@code @JsonIgnore}) and
-     * class-level {@code @JsonIgnoreProperties} annotation.
+     * Lazily collected set of properties that are explicitly ignored, combining
+     * both per-property markers ({@code @JsonIgnore}, via {@link #_collectIgnorals})
+     * and direction-specific names derived from class-level
+     * {@code @JsonIgnoreProperties} (via {@link #_collectClassLevelIgnorals}).
+     *<p>
+     * Kept as a mutable set because {@link #_renameProperties} may remove entries
+     * (when a creator property is renamed to a previously-ignored name).
+     * {@link #_propertyIgnorals} holds the immutable class-level value in parallel.
      */
     protected HashSet<String> _ignoredPropertyNames;
+
+    /**
+     * Class-level ignorals (annotation plus config overrides), computed once during
+     * {@link #_collectClassLevelIgnorals()} and exposed to the factory layer via
+     * {@link #getPropertyIgnorals()} so that {@code findPropertyIgnoralByName()} is
+     * called exactly once per type.  The direction-specific property names it contains
+     * are also copied into {@link #_ignoredPropertyNames} for internal use by
+     * {@link #_renameProperties}.
+     */
+    protected JsonIgnoreProperties.Value _propertyIgnorals;
 
     /**
      * Lazily collected list of members that were annotated to
@@ -323,6 +338,18 @@ public class POJOPropertiesCollector
             collectAll();
         }
         return _ignoredPropertyNames;
+    }
+
+    /**
+     * Accessor for class-level property ignorals (annotation plus config overrides),
+     * computed once during collection and cached for reuse by the factory layer.
+     * Returns {@code null} when no ignorals are defined.
+     */
+    public JsonIgnoreProperties.Value getPropertyIgnorals() {
+        if (!_collected) {
+            collectAll();
+        }
+        return _propertyIgnorals;
     }
 
     /**
@@ -1515,9 +1542,10 @@ ctor.creator()));
     }
 
     /**
-     * Helper method called to add explicitly ignored properties to a list
-     * of known ignored properties; this helps in proper reporting of
-     * errors.
+     * Helper method called to record a per-property ignoral (from {@code @JsonIgnore}
+     * or read/write-only rules) into {@link #_ignoredPropertyNames}.
+     * Used by {@link #_renameProperties} to skip renaming ignored properties, and
+     * surfaced externally via {@link #getIgnoredPropertyNames()}.
      */
     protected void _collectIgnorals(String name)
     {
@@ -1530,21 +1558,26 @@ ctor.creator()));
     }
 
     /**
-     * Helper method called to collect class-level {@code @JsonIgnoreProperties}
-     * ignorals into {@code _ignoredPropertyNames}, so that
-     * {@link #getIgnoredPropertyNames()} returns all ignored names regardless
-     * of source.
+     * Helper method called to collect class-level property ignorals: stores the
+     * full {@link JsonIgnoreProperties.Value} (annotation + config overrides) in
+     * {@link #_propertyIgnorals} for reuse by the factory layer, and copies the
+     * direction-specific property names into {@link #_ignoredPropertyNames} so
+     * that {@link #_renameProperties} can skip them.
+     *<p>
+     * Uses {@link MapperConfig#getDefaultPropertyIgnorals} rather than calling
+     * {@code findPropertyIgnoralByName()} directly, so that config-level overrides
+     * are included and consistent with what the factory layer sees.
      *
      * @since 3.2
      */
     protected void _collectClassLevelIgnorals()
     {
-        JsonIgnoreProperties.Value ignorals =
-            _annotationIntrospector.findPropertyIgnoralByName(_config, _classDef);
-        if (ignorals != null) {
+        _propertyIgnorals =
+            _config.getDefaultPropertyIgnorals(_classDef.getRawType(), _classDef);
+        if (_propertyIgnorals != null) {
             Set<String> ignored = _forSerialization
-                    ? ignorals.findIgnoredForSerialization()
-                    : ignorals.findIgnoredForDeserialization();
+                    ? _propertyIgnorals.findIgnoredForSerialization()
+                    : _propertyIgnorals.findIgnoredForDeserialization();
             if (_nonNullNonEmpty(ignored)) {
                 if (_ignoredPropertyNames == null) {
                     _ignoredPropertyNames = new HashSet<>(ignored);
