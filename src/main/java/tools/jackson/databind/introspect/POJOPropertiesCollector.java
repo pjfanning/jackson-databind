@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.ConstructorDetector;
@@ -121,9 +122,9 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
     /**
-     * Lazily collected list of properties that can be implicitly
-     * ignored during serialization; only updated when collecting
-     * information for deserialization purposes
+     * Lazily collected list of properties that are explicitly ignored,
+     * including both per-property markers ({@code @JsonIgnore}) and
+     * class-level {@code @JsonIgnoreProperties} annotation.
      */
     protected HashSet<String> _ignoredPropertyNames;
 
@@ -314,9 +315,13 @@ public class POJOPropertiesCollector
 
     /**
      * Accessor for set of properties that are explicitly marked to be ignored
-     * via per-property markers (but NOT class annotations).
+     * via per-property markers ({@code @JsonIgnore}) and/or class-level
+     * {@code @JsonIgnoreProperties} annotation.
      */
     public Set<String> getIgnoredPropertyNames() {
+        if (!_collected) {
+            collectAll();
+        }
         return _ignoredPropertyNames;
     }
 
@@ -400,6 +405,8 @@ public class POJOPropertiesCollector
         // Remove ignored properties, first; this MUST precede annotation merging
         // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
+        // [databind#3591]: Also collect class-level @JsonIgnoreProperties ignorals
+        _collectClassLevelIgnorals();
         // and then remove unneeded accessors (wrt read-only, read-write)
         _removeUnwantedAccessors(props);
 
@@ -760,7 +767,7 @@ public class POJOPropertiesCollector
         // Only consider single-arg case, for now
         if (ctor.paramCount() == 1) {
             // Main thing: @JsonValue makes it delegating:
-            if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+            if (_nonNullNonEmpty(_jsonValueAccessors)) {
                 return true;
             }
         }
@@ -919,7 +926,7 @@ ctor.creator()));
             return true;
         }
         // Second: [databind#3180] @JsonValue indicates delegating
-        if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+        if (_nonNullNonEmpty(_jsonValueAccessors)) {
             return false;
         }
         if (ctor.paramCount() == 1) {
@@ -1514,11 +1521,37 @@ ctor.creator()));
      */
     protected void _collectIgnorals(String name)
     {
-        if (!_forSerialization && (name != null)) {
+        if (name != null) {
             if (_ignoredPropertyNames == null) {
                 _ignoredPropertyNames = new HashSet<>();
             }
             _ignoredPropertyNames.add(name);
+        }
+    }
+
+    /**
+     * Helper method called to collect class-level {@code @JsonIgnoreProperties}
+     * ignorals into {@code _ignoredPropertyNames}, so that
+     * {@link #getIgnoredPropertyNames()} returns all ignored names regardless
+     * of source.
+     *
+     * @since 3.2
+     */
+    protected void _collectClassLevelIgnorals()
+    {
+        JsonIgnoreProperties.Value ignorals =
+            _annotationIntrospector.findPropertyIgnoralByName(_config, _classDef);
+        if (ignorals != null) {
+            Set<String> ignored = _forSerialization
+                    ? ignorals.findIgnoredForSerialization()
+                    : ignorals.findIgnoredForDeserialization();
+            if (_nonNullNonEmpty(ignored)) {
+                if (_ignoredPropertyNames == null) {
+                    _ignoredPropertyNames = new HashSet<>(ignored);
+                } else {
+                    _ignoredPropertyNames.addAll(ignored);
+                }
+            }
         }
     }
 
@@ -1998,5 +2031,10 @@ ctor.creator()));
             }
         }
         return false;
+    }
+
+    // @since 3.2
+    private final static boolean _nonNullNonEmpty(Collection<?> coll) {
+        return (coll != null) && !coll.isEmpty();
     }
 }
