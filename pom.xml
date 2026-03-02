@@ -218,8 +218,8 @@
         <configuration>
           <links combine.children="append">
             <!-- 08-Aug-2025, tatu: 3.x retains dep to annotations 2.x -->
-            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/latest</link>
-            <link>https://javadoc.io/doc/tools.jackson.core/jackson-core/latest</link>
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/2.21</link>
+            <link>https://javadoc.io/doc/tools.jackson.core/jackson-core/2.21.0</link>
           </links>
         </configuration>
       </plugin>
