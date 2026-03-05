@@ -841,6 +841,23 @@ public class DateDeserializationTest
         assertEquals(original.getTime(), parsed.getTime());
     }
 
+    // [databind#5729]: negative timestamp as JSON string (e.g. May 12, 1926) should be parsed correctly
+    @Test
+    public void testDateDeserFromNegativeTimestampString() throws Exception {
+        // -1383043669935 corresponds to a date before epoch (around May 12, 1926)
+        long negativeTimestamp = -1383043669935L;
+        ObjectMapper mapper = jsonMapperBuilder().build();
+
+        // As JSON number: works via direct getLongValue() path
+        Date parsedFromNumber = mapper.readValue(String.valueOf(negativeTimestamp), Date.class);
+        assertEquals(negativeTimestamp, parsedFromNumber.getTime());
+
+        // As JSON string: must also work (goes through StdDateFormat._parseDate)
+        // Before the fix, "-1383043669935" was mistakenly treated as ISO-8601 extended year
+        Date parsedFromString = mapper.readValue(q(String.valueOf(negativeTimestamp)), Date.class);
+        assertEquals(negativeTimestamp, parsedFromString.getTime());
+    }
+
     /*
     /**********************************************************
     /* Helper methods
