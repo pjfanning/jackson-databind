@@ -597,8 +597,12 @@ public class StdDateFormat
             final char c = dateStr.charAt(0);
             // [databind#5429]: extended year may have +/- prefix
             if (c == '+' || c == '-') {
-                return (dateStr.length() >= 11)
-                    && Character.isDigit(dateStr.charAt(1));
+                if ((dateStr.length() >= 11) && Character.isDigit(dateStr.charAt(1))) {
+                    // [databind#5729]: For '-' prefix, verify a date separator '-' exists after
+                    // position 1, to distinguish from negative timestamps (e.g. -1383043669935)
+                    return (c == '+') || (dateStr.indexOf('-', 1) > 1);
+                }
+                return false;
             }
             return Character.isDigit(c)
                 && Character.isDigit(dateStr.charAt(3))
