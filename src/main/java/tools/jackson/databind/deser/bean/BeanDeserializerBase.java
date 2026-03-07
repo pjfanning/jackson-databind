@@ -819,6 +819,19 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
+        // [databind#1622], [databind#3355]: due to cyclic dependencies, sometimes
+        // resolve() called _after_ this method so we may need to separately resolve
+        // Property-based Creator. This is WRONG -- this method should NOT modify its
+        // state, but needs must
+        if (_propertyBasedCreator == null && _valueInstantiator.canCreateFromObjectWith()) {
+            // Let's guard state mutation wrt concurrency
+            synchronized (_valueInstantiator) {
+                SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+                _propertyBasedCreator = PropertyBasedCreator.construct(
+                        ctxt, _valueInstantiator, creatorProps, _beanProperties);
+            }
+        }
+
         ObjectIdReader oir = _objectIdReader;
 
         // First: may have an override for Object Id:
@@ -862,14 +875,6 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
         BeanDeserializerBase contextual = this;
         if (oir != null && oir != _objectIdReader) {
             contextual = contextual.withObjectIdReader(oir);
-        }
-
-        // [databind#1622], [databind#3355]: may need to separately resolve
-        // Property-based Creator
-        if (_propertyBasedCreator == null && _valueInstantiator.canCreateFromObjectWith()) {
-            SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-            _propertyBasedCreator = PropertyBasedCreator.construct(
-                    ctxt, _valueInstantiator, creatorProps, _beanProperties);
         }
 
         // And possibly add more properties to ignore
