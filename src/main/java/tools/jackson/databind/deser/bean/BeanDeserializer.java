@@ -1320,8 +1320,10 @@ public class BeanDeserializer
                 SettableBeanProperty prop = _propsByIndex[ix];
                 JsonToken t = p.nextToken();
                 // [JACKSON-831]: may have property AND be used as external type id:
-                if (t.isScalarValue()) {
-                    ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean);
+                // [databind#1329]: if so, and visible=false, skip setting on bean
+                if (t.isScalarValue()
+                        && ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean)) {
+                    continue;
                 }
                 if (activeView != null && !prop.visibleInView(activeView)) {
                     p.skipChildren();
@@ -1409,8 +1411,10 @@ public class BeanDeserializer
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
                 // [databind#3045]: may have property AND be used as external type id:
-                if (t.isScalarValue()) {
-                    ext.handleTypePropertyValue(p, ctxt, propName, null);
+                // [databind#1329]: if so, and visible=false, skip buffering
+                if (t.isScalarValue()
+                        && ext.handleTypePropertyValue(p, ctxt, propName, null)) {
+                    continue;
                 }
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
