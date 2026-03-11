@@ -36,7 +36,7 @@ class ObjectIdDeserializationFailTest extends DatabindTestUtil {
     }
 
     static enum FooEnum {
-        A, B
+        A, B, C
     }
 
     static class DefensiveCompany {
