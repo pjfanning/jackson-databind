@@ -484,40 +484,6 @@ public class POJOPropertiesCollector
         _collected = true;
     }
 
-    /**
-     * [databind#5215] JsonAnyGetter Serializer behavior change from 2.18.4 to 2.19.0
-     * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
-     */
-    private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(
-            Map<String, POJOPropertyBuilder> sortedProps)
-    {
-        AnnotatedMember anyAccessor;
-
-        if (_anyGetters != null) {
-            anyAccessor = _anyGetters.getFirst();
-        } else if (_anyGetterField != null) {
-            anyAccessor = _anyGetterField.getFirst();
-        } else {
-            return sortedProps;
-        }
-
-        // Here we'll use insertion-order preserving map, since possible alphabetic
-        // sorting already done earlier
-        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(sortedProps.size() * 2);
-        POJOPropertyBuilder anyGetterProp = null;
-        for (POJOPropertyBuilder prop : sortedProps.values()) {
-            if (prop.hasFieldOrGetter(anyAccessor)) {
-                anyGetterProp = prop;
-            } else {
-                newAll.put(prop.getName(), prop);
-            }
-        }
-        if (anyGetterProp != null) {
-            newAll.put(anyGetterProp.getName(), anyGetterProp);
-        }
-        return newAll;
-    }
-
     /*
     /**********************************************************************
     /* Property introspection: Fields
@@ -1817,10 +1783,17 @@ ctor.creator()));
                 ? _config.shouldSortPropertiesAlphabetically()
                 : alpha.booleanValue();
         final boolean indexed = _anyIndexed(props.values());
+        final boolean useIndexOrdering = indexed
+                && _config.isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX);
+        final boolean sortCreatorsFirst = (_creatorProperties != null)
+                && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
 
         String[] propertyOrder = intr.findSerializationPropertyOrder(_config, _classDef);
 
         // no sorting? no need to shuffle, then
+        // NOTE: intentionally using `indexed` (not `useIndexOrdering`) here so that
+        // _putAnyGettersInTheEnd() and other post-processing steps are not skipped
+        // when SORT_PROPERTIES_BY_INDEX is disabled but indexed properties exist.
         if (!sortAlpha && !indexed && (_creatorProperties == null) && (propertyOrder == null)) {
             return;
         }
@@ -1860,7 +1833,7 @@ ctor.creator()));
         }
 
         // Second (starting with 2.11): index, if any:
-        if (indexed) {
+        if (useIndexOrdering) {
             Map<Integer,POJOPropertyBuilder> byIndex = new TreeMap<>();
             Iterator<Map.Entry<String,POJOPropertyBuilder>> it = all.entrySet().iterator();
             while (it.hasNext()) {
@@ -1879,8 +1852,7 @@ ctor.creator()));
 
         // Third by sorting Creator properties before other unordered properties
         // (unless strict ordering is requested)
-        if ((_creatorProperties != null)
-                && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST))) {
+        if (sortCreatorsFirst) {
             /* As per [databind#311], this is bit delicate; but if alphabetic ordering
              * is mandated, at least ensure creator properties are in alphabetic
              * order. Related question of creator vs non-creator is punted for now,
@@ -1929,6 +1901,40 @@ ctor.creator()));
         return false;
     }
 
+    /**
+     * [databind#5215] JsonAnyGetter Serializer behavior change from 2.18.4 to 2.19.0
+     * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
+     */
+    private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(
+            Map<String, POJOPropertyBuilder> sortedProps)
+    {
+        AnnotatedMember anyAccessor;
+
+        if (_anyGetters != null) {
+            anyAccessor = _anyGetters.getFirst();
+        } else if (_anyGetterField != null) {
+            anyAccessor = _anyGetterField.getFirst();
+        } else {
+            return sortedProps;
+        }
+
+        // Here we'll use insertion-order preserving map, since possible alphabetic
+        // sorting already done earlier
+        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(sortedProps.size() * 2);
+        POJOPropertyBuilder anyGetterProp = null;
+        for (POJOPropertyBuilder prop : sortedProps.values()) {
+            if (prop.hasFieldOrGetter(anyAccessor)) {
+                anyGetterProp = prop;
+            } else {
+                newAll.put(prop.getName(), prop);
+            }
+        }
+        if (anyGetterProp != null) {
+            newAll.put(anyGetterProp.getName(), anyGetterProp);
+        }
+        return newAll;
+    }
+    
     /*
     /**********************************************************************
     /* Internal methods, conflict resolution
