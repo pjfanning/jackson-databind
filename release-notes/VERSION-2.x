@@ -159,6 +159,9 @@ No changes since 2.19.2
 
 2.19.0 (24-Apr-2025)
 
+#917: Unable to have two `@JsonUnwrapped` annotated object of same
+  type within one constructor
+ (reported by @smil2k)
 #1467: Support `@JsonUnwrapped` with `@JsonCreator`
  (implementation by Liam F)
 #2145: Add `JsonNode.optional(String name)` and `optional(int index)` methods
