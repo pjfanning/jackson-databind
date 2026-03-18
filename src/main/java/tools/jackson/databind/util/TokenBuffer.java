@@ -1900,8 +1900,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 // For integers, only big values are deferred (see _copyBufferValue)
                 // so BIG_INTEGER is appropriate; for floats, default parsing
                 // produces Double (not BigDecimal) -- see [databind#3524]
-                return (_currToken == JsonToken.VALUE_NUMBER_FLOAT)
-                        ? NumberType.DOUBLE : NumberType.BIG_INTEGER;
+                // But: [databind#5786] must respect _forceBigDecimal setting
+                if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
+                    return _source._forceBigDecimal
+                            ? NumberType.BIG_DECIMAL : NumberType.DOUBLE;
+                }
+                return NumberType.BIG_INTEGER;
             }
             return null;
         }
@@ -1917,14 +1921,19 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 // 11-Feb-2026, tatu: If deferred, type specifically not known,
                 //    caller to decide (unlike with `getNumberType()` that has
                 //    no "unknown" option).
-                if (n instanceof String) return NumberTypeFP.DOUBLE64;
+                // But: [databind#5786] must respect _forceBigDecimal setting
+                if (n instanceof String) {
+                    return _source._forceBigDecimal
+                            ? NumberTypeFP.BIG_DECIMAL : NumberTypeFP.DOUBLE64;
+                }
             }
             return NumberTypeFP.UNKNOWN;
         }
 
         @Override
         public final Number getNumberValue() {
-            return _numberValue(-1, false);
+            // [databind#5786]: respect _forceBigDecimal for deferred float values
+            return _numberValue(-1, _source._forceBigDecimal);
         }
 
         @Override
