@@ -285,3 +285,8 @@ Alessandro Nistico (@alienisty)
  * Reported #5728: `@JsonUnwrapped`doesn't work for delegating ValueDeserializer (even
    one delegating to `BeanDeserializerBase`)
   [3.1.1]
+
+David Albrecht (@dalbrx-nitrobox)
+ * Reported and fixed #5785: Wrong path in `InvalidFormatException` for nested fields
+  and `BuilderBasedDeserializer`
+  [3.1.1]
