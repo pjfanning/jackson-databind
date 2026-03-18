@@ -285,7 +285,3 @@ Alessandro Nistico (@alienisty)
  * Reported #5728: `@JsonUnwrapped`doesn't work for delegating ValueDeserializer (even
    one delegating to `BeanDeserializerBase`)
   [3.1.1]
-
-Sébastien Deleuze (@sdeleuze)
- * Reported #5786: Regression in `TokenBuffer#forceUseOfBigDecimal`
-  [3.1.1]
