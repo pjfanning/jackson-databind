@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.misc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,14 +9,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -108,20 +107,17 @@ public class ThreadSafetyWithConverterMixin5813Test
                 .build();
     }
 
-    // 22-Mar-2026, tatu: Passes on 2.x, fails on 3.x up to at least 3.1.0
-    //   so need to mark like so for now
-    @JacksonTestFailureExpected
-    @Test
-    // @RepeatedTest(50) -- can't use with @JacksonTestFailureExpected
+    // Use 50 repetitions; this should be enough to reliably trigger the race condition
+    // when the fix is absent
+    @RepeatedTest(50)
     public void testConcurrentSerializationWithConverterMixin() throws Exception {
-      for (int round = 0; round < 50; round++) {
-          _testConcurrentSerializationWithConverterMixin();
-      }
+        for (int round = 0; round < 50; round++) {
+            _testConcurrentSerializationWithConverterMixin();
+        }
     }
 
-    private void _testConcurrentSerializationWithConverterMixin() throws Exception
-    {
-      final String expectedJson = a2q("{\n"
+    private void _testConcurrentSerializationWithConverterMixin() throws Exception {
+        final String expectedJson = a2q("{\n"
                 + "  'locales' : [ {\n"
                 + "    'code' : 'en'\n"
                 + "  }, {\n"
