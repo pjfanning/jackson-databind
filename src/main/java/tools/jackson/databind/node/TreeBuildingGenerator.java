@@ -11,6 +11,7 @@ import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.JsonNodeFeature;
+import tools.jackson.databind.util.NumberUtil;
 import tools.jackson.databind.util.RawValue;
 
 /**
@@ -408,9 +409,9 @@ public class TreeBuildingGenerator
         if (v == null) {
             writeNull();
         } else {
-            // [databind#5819]: apply STRIP_TRAILING_BIGDECIMAL_ZEROES if enabled
+            // [databind#5819]: apply `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`?
             if (_cfgStripTrailingBigDecimalZeroes) {
-                v = v.stripTrailingZeros();
+                v = NumberUtil.stripTrailingZeros(v);
             }
             _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
         }
