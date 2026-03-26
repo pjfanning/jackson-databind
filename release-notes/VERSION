@@ -104,6 +104,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   with `@JsonManagedReference`
  (reported by Robert R)
  (fix by @cowtowncoder, w/ Claude code)
+#4983: `JsonTypeInfo.Id.MINIMAL_CLASS` generates invalid type on sub-package
+ (reported, fix by Benoit C-L)
 #5330: `@JsonProperty`on enum values with
   `@JsonFormat(shape = JsonFormat.Shape.NUMBER)` is ignored
  (reported by Christoffer H)
