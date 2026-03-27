@@ -1,17 +1,10 @@
 package tools.jackson.databind.jsontype;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import tools.jackson.databind.AnnotationIntrospector;
-import tools.jackson.databind.DeserializationConfig;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializationConfig;
-import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.introspect.AnnotatedClass;
