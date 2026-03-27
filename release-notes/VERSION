@@ -9,7 +9,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 No changes since 3.1
 
-3.1.1 (not yet released)
+3.1.1 (27-Mar-2026)
 
 #5710: `ObjectWriter` transforms polymorphic types into a tree incompletely
  (reported by Brandon S)
