@@ -19,6 +19,9 @@ No changes since 3.1
   `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
  (reported by Lavender S)
  (fix by @cowtowncoder, w/ Claude code)
+#5867: Fix `Map.Entry` deserialization for property-level
+  `Shape.NATURAL` override
+ (fixed by Lee Jiwon)
 
 3.1.1 (27-Mar-2026)
 
