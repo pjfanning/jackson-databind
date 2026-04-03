@@ -49,12 +49,12 @@ public class PolymorphicWithObjectId1551Test extends DatabindTestUtil
         VehicleOwnerViaProp v2 = new VehicleOwnerViaProp();
         v2.ownedVehicle = c;
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String serialized = objectMapper.writer()
+        ObjectMapper mapper = newJsonMapper();
+        String serialized = mapper.writer()
                 .writeValueAsString(new VehicleOwnerViaProp[] { v1, v2 });
         // 02-May-2017, tatu: Not possible to support as of Jackson 2.8 at least, so:
 
-        VehicleOwnerViaProp[] deserialized = objectMapper.readValue(serialized, VehicleOwnerViaProp[].class);
+        VehicleOwnerViaProp[] deserialized = mapper.readValue(serialized, VehicleOwnerViaProp[].class);
         assertEquals(2, deserialized.length);
         assertSame(deserialized[0].ownedVehicle, deserialized[1].ownedVehicle);
     }
@@ -71,9 +71,9 @@ public class PolymorphicWithObjectId1551Test extends DatabindTestUtil
         VehicleOwnerBroken v2 = new VehicleOwnerBroken();
         v2.ownedVehicle = c;
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         try {
-            objectMapper.writer()
+            mapper.writer()
                 .writeValueAsString(new VehicleOwnerBroken[] { v1, v2 });
         } catch (InvalidDefinitionException e) {
             // on serialization, reported for different type
@@ -88,7 +88,7 @@ public class PolymorphicWithObjectId1551Test extends DatabindTestUtil
 +"'numberOfDoors':2}},{'ownedVehicle':'123'}]"
                 );
         try {
-            objectMapper.readValue(JSON, VehicleOwnerBroken[].class);
+            mapper.readValue(JSON, VehicleOwnerBroken[].class);
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
             assertEquals(Vehicle.class, e.getType().getRawClass());
