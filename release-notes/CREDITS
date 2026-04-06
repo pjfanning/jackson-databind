@@ -320,6 +320,11 @@ Lavender Shannon (@retrodaredevil)
    `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
   [3.1.2]
 
+Aleksandr Georgievskii (@ageorgievskii)
+ * Reported #5884: Exception when using `@JsonUnwrapped` alongside with `@JsonAlias`
+   on another property
+  [3.1.2]
+
 Gili Tzabari (@cowwoc)
  * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
    failure (unresolved forward reference)
