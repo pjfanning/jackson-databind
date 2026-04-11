@@ -1235,6 +1235,8 @@ public abstract class StdDeserializer<T>
         if (!text.isEmpty()) {
             switch (text.charAt(0)) {
             case 'I':
+            // 11-Apr-2026, [databind#5898]: accept "+Infinity", "+INF"
+            case '+':
                 if (_isPosInf(text)) {
                     return Float.POSITIVE_INFINITY;
                 }
@@ -1393,6 +1395,8 @@ public abstract class StdDeserializer<T>
         if (!text.isEmpty()) {
             switch (text.charAt(0)) {
             case 'I':
+            // 11-Apr-2026, [databind#5898]: accept "+Infinity", "+INF"
+            case '+':
                 if (_isPosInf(text)) {
                     return Double.POSITIVE_INFINITY;
                 }
@@ -1628,7 +1632,9 @@ public abstract class StdDeserializer<T>
     }
 
     protected final boolean _isPosInf(String text) {
-        return "Infinity".equals(text) || "INF".equals(text);
+        return "Infinity".equals(text) || "INF".equals(text)
+                // 11-Apr-2026, [databind#5898]: also accept:
+                || "+Infinity".equals(text) || "+INF".equals(text);
     }
 
     protected final boolean _isNaN(String text) { return "NaN".equals(text); }
