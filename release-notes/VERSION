@@ -80,6 +80,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 #2156: JsonTypeId-only class is not serialized properly
  (reported by @alexzam)
+#2172: `DeserializationContext#handleMissingInstantiator` method ignores
+  parameter `ValueInstantiator`
+ (reported by Andrii P)
 #3281: Auto-detect Java 17 sealed classes without manually specifying
   them in `@JsonSubTypes` (actual fix via #5025)
 #5319: `TreeTraversingParser` does not respect `DeserializationFeature.ACCEPT_FLOAT_AS_INT`
