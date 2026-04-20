@@ -22,6 +22,8 @@ No changes since 3.1
  (reported, fixed by Joshua A)
 #5925: Pass dynamic serializer for `Iterable` content filtering
  (fixed by Lee Jiwon)
+#5931: Fix `AtomicLongDeserializer` value truncation on coerced values
+ (fixed by Lee Jiwon)
 
 3.1.2 (11-Apr-2026)
 
