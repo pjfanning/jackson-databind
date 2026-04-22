@@ -615,7 +615,7 @@ public abstract class AnnotationIntrospector
      * Method for checking if annotated property (represented by a field or
      * getter/setter method) has definition for view that shall be applied to
      * property value (and its child properties) when processing.
-     * If {@code null} is returned, no view definition exist and property is processed with
+     * If {@code null} is returned, no view definition exists and property is processed with
      * the current active view if any;
      * otherwise it will use that view to process the property and its subtree.
      * NOTE: special value of {@link com.fasterxml.jackson.annotation.JsonApplyView.NONE}

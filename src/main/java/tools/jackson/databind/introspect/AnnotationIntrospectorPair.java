@@ -378,7 +378,7 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Class findApplyView(MapperConfig<?> config, Annotated a)
+    public Class<?> findApplyView(MapperConfig<?> config, Annotated a)
     {
         /* Theoretically this could be trickier, if multiple introspectors
          * return non-null entries. For now, though, we'll just consider
