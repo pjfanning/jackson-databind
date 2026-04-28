@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.21.3 (not yet released)
+2.21.3 (28-Apr-2026)
 
 #5840: Jackson 2.21 throws Conflicting property-based creators if both
   default (0-arg) and multi-arg constructor annotated
