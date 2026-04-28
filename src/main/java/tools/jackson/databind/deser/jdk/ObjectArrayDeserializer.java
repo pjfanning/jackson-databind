@@ -540,6 +540,17 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
                     + "] that wasn't previously seen as unresolved.");
         }
 
+        // [databind#5909]: no `replaceResolvedItem` here, unlike Collection/Map
+        // accumulators. The Builder→built rebind path is unreachable for arrays:
+        //  - Typed arrays (e.g. `Entity[]`) cannot store the Builder instance,
+        //    so `resolveForwardReference` throws `ArrayStoreException` before
+        //    any rebind could fire.
+        //  - Untyped `Object[]` arrays don't trigger the forward-ref accumulator
+        //    at all because the default element deserializer
+        //    ({@code UntypedObjectDeserializer}) has no `ObjectIdReader`.
+        // Regression covered by
+        // {@code ObjectIdWithBuilder5909Test#forwardReferenceInTypedArrayFailsArrayStoreException}.
+
         Object[] buildArray() {
             final int size = _accumulator.size();
             if (_untyped) {
@@ -571,5 +582,8 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
                 Object id, Object value) {
             _parent.resolveForwardReference(id, value);
         }
+
+        // [databind#5909]: no `handleItemRebind` override. The default no-op is
+        // correct for arrays — see comment in ObjectArrayReferringAccumulator.
     }
 }
