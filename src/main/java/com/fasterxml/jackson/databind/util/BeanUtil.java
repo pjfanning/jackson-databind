@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.util;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -147,7 +148,9 @@ public class BeanUtil
         if (prim != null) {
             return ClassUtil.defaultValue(prim);
         }
-        if (type.isContainerType() || type.isReferenceType()) {
+        if (type.isContainerType() || type.isReferenceType()
+                // 10-Mar-2026, tatu [databind#3573]: null UUID is empty and as such default
+                || cls == UUID.class) {
             return JsonInclude.Include.NON_EMPTY;
         }
         if (cls == String.class) {

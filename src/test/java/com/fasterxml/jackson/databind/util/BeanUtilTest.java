@@ -35,6 +35,9 @@ public class BeanUtilTest extends DatabindTestUtil
         assertEquals(Integer.valueOf(0),
                 BeanUtil.getDefaultValue(tf.constructType(Integer.class)));
 
+        // [databind#3573]: UUID treated like container/reference types
+        assertEquals(JsonInclude.Include.NON_EMPTY,
+                BeanUtil.getDefaultValue(tf.constructType(UUID.class)));
 
         // but POJOs have no real default
         assertNull(BeanUtil.getDefaultValue(tf.constructType(getClass())));
