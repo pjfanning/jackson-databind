@@ -14,6 +14,11 @@ Project: jackson-databind
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
+2.21.4 (not yet released)
+
+#5931: Fix `AtomicLongDeserializer` value truncation on coerced values
+ (fixed by Lee Jiwon)
+
 2.21.3 (28-Apr-2026)
 
 #5840: Jackson 2.21 throws Conflicting property-based creators if both
