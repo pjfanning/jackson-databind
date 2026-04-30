@@ -10,6 +10,10 @@ Project: jackson-databind
   defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
  (reported by Christian D)
  (contributed by Lee Jiwon)
+#3316: Deserialization of a date with `@JsonFormat` specified with locale
+  that is not a language tag
+ (reported by @MarkDavoren)
+ (fix by @cowtowncoder, w/ Claude code)
 #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
