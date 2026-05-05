@@ -336,6 +336,10 @@ Joshua Arnold (@josharnold52)
    `@JsonCreator` and `@JsonValue`
   [3.1.3]
 
+Omkhar Arasaratnam (@omkhar)
+ * Reported #5950: Improve `UUIDeserializer` error handling
+  [3.1.4]
+
 Michael Orzechowski (@MikeBlink)
  * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive
    module dependencies (3.x regression from 2.x)
