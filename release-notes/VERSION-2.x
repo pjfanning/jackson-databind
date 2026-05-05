@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
  (fixed by Lee Jiwon)
+#5950: Improve `UUIDeserializer` error handling
+ (reported by OA)
 
 2.21.3 (28-Apr-2026)
 
