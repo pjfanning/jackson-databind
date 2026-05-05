@@ -1906,6 +1906,10 @@ Fawzi Essam (@iifawzi)
    on simple java record
   (2.18.4)
 
+OA (---)
+ * Reported #5950: Improve `UUIDeserializer` error handling
+  (2.18.8)
+
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
   (2.19.0)
