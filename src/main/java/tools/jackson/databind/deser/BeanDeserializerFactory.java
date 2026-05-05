@@ -551,6 +551,11 @@ ClassUtil.name(propName)));
         if (ignorals != null) {
             builder.setIgnoreUnknownProperties(ignorals.getIgnoreUnknown());
             ignored = ignorals.findIgnoredForDeserialization();
+            // NOTE: must register class-level ignorals here separately from the
+            // per-property loop below: per [databind#2001]/[databind#2118], names
+            // that collide with creator parameters get stripped out of
+            // POJOPropertiesCollector#_ignoredPropertyNames during rename, so
+            // beanDesc.getIgnoredPropertyNames() does NOT cover them.
             for (String propName : ignored) {
                 builder.addIgnorable(propName);
             }
@@ -574,19 +579,17 @@ ClassUtil.name(propName)));
         SettableAnyProperty anySetter = _resolveAnySetter(ctxt, beanDescRef, creatorProps);
         if (anySetter != null) {
             builder.setAnySetter(anySetter);
-        } else {
-            // 23-Jan-2018, tatu: although [databind#1805] would suggest we should block
-            //   properties regardless, for now only consider unless there's any setter...
-            // NOTE: getIgnoredPropertyNames() adds per-property @JsonIgnore names on top
-            //   of the class-level names already registered above; the overlap is harmless
-            //   (builder uses a Set internally).
-            Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
-            if (ignored2 != null) {
-                for (String propName : ignored2) {
-                    // allow ignoral of similarly named JSON property, but do not force;
-                    // latter means NOT adding this to 'ignored':
-                    builder.addIgnorable(propName);
-                }
+        }
+        // [databind#5952]: per-property @JsonIgnore (and read-only access rules) must
+        // be registered as ignorable regardless of whether an any-setter exists, so
+        // the any-setter does not receive properties the user explicitly marked as
+        // ignored. (Class-level @JsonIgnoreProperties names are registered separately
+        // above; this is needed because creator-prop renaming may remove class-level
+        // names from POJOPropertiesCollector#_ignoredPropertyNames.)
+        Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
+        if (ignored2 != null) {
+            for (String propName : ignored2) {
+                builder.addIgnorable(propName);
             }
         }
         final boolean useGettersAsSetters = ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS);
