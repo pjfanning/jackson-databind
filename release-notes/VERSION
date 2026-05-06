@@ -13,6 +13,8 @@ No changes since 3.1
 
 #5950: Improve `UUIDeserializer` error handling
  (reported, fix suggested by Omkhar A)
+#5951: Improve `InetSocketAddress` deserialization
+ (reported by Omkhar A)
 #5956: Fix problem with float-to-byte range check
  (reported, fix suggested by Omkhar A)
 #5957: Improve `java.time.Month` deserialization validation
