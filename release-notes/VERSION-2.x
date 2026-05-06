@@ -129,6 +129,8 @@ No changes since 2.19.2
 
 #5950: Improve `UUIDeserializer` error handling
  (reported by Omkhar A)
+#5951: Improve `InetSocketAddress` deserialization
+ (reported by Omkhar A)
 
 2.18.7 (24-Apr-2026)
 2.18.6 (22-Feb-2026)
