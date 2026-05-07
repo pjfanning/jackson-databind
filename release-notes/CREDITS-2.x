@@ -1917,6 +1917,9 @@ Omkhar Arasaratnam (@omkhar)
   (2.18.8)
  * Reported #5951: Improve `InetSocketAddress` deserialization
   (2.18.8)
+ * Reported #5974: `@JsonIgnore` on Record property ignored with
+   `PropertyNamingStrategy`
+  (2.18.8)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
