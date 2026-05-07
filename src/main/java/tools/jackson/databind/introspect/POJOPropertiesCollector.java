@@ -1790,8 +1790,7 @@ ctor.creator()));
             if ((rename != null) && !fullName.hasSimpleName(rename)) {
                 // [databind#5974]: preserve @JsonIgnore semantics through naming-strategy
                 // rename so the renamed key is also recognized as ignored.
-                if (_ignoredPropertyNames != null
-                        && _ignoredPropertyNames.contains(fullName.getSimpleName())) {
+                if (_isIgnored(fullName.getSimpleName())) {
                     _collectIgnorals(rename);
                 }
                 prop = prop.withSimpleName(rename);
