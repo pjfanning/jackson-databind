@@ -1928,6 +1928,9 @@ Omkhar Arasaratnam (@omkhar)
   (2.21.4)
  * Contributed fix for #5971: `@JsonView` by-passed for unwrapped creator parameters
   (2.21.4)
+ * Contributed fix for #5974: `@JsonIgnore` on Record property ignored with
+   `PropertyNamingStrategy`
+  (2.18.8)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`

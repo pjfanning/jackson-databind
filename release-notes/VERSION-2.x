@@ -34,6 +34,8 @@ Project: jackson-databind
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters
  (fixed by Omkhar A)
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+ (reported by Omkhar A)
 
 2.21.3 (28-Apr-2026)
 
@@ -301,6 +303,8 @@ No changes since 2.19.2
 #5950: Improve `UUIDeserializer` error handling
  (reported by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization
+ (reported by Omkhar A)
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
  (reported by Omkhar A)
 
 2.18.7 (24-Apr-2026)
