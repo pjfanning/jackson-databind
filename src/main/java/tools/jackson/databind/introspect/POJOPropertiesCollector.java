@@ -1606,6 +1606,27 @@ ctor.creator()));
     }
 
     /**
+     * Returns {@code true} if the (already-collected) properties-based creator
+     * has a parameter currently bound to the given name. Used by
+     * {@link POJOPropertyBuilder#removeNonVisible} to skip {@code READ_ONLY}
+     * explicit-name ignorals that would shadow a sibling creator parameter
+     * ({@code [databind#5975]}).
+     *
+     * @since 3.2
+     */
+    public boolean hasCreatorBoundProperty(String name) {
+        if (_creatorProperties == null) {
+            return false;
+        }
+        for (POJOPropertyBuilder p : _creatorProperties) {
+            if (p != null && name.equals(p.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Helper method called to collect class-level property ignorals: stores the
      * full {@link com.fasterxml.jackson.annotation.JsonIgnoreProperties.Value}
      * (annotation + config overrides) in {@link #_propertyIgnorals} for reuse by
