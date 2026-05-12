@@ -24,6 +24,9 @@ Project: jackson-databind
   should validate element type
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
+#5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+ (reported by Omkhar A)
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.21.3 (28-Apr-2026)
 
