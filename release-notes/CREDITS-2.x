@@ -2051,3 +2051,8 @@ Joshua Arnold (@josharnold52)
  * Reported, fixed #5923: Deserialization behavior change with Records,
    `@JsonCreator` and `@JsonValue`
   [2.21.3]
+
+CharmingKyu (@loadkrnis)
+ * Fixed #5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
+   using JVM default locale (Turkish-I bug)
+  [2.21.4]
