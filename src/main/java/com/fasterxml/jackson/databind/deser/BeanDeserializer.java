@@ -477,6 +477,11 @@ public class BeanDeserializer
                 // [databind#3938]: except if it's MethodProperty
                 (!_beanType.isRecordType() || (prop instanceof MethodProperty))) {
 
+                // [databind#5969]: must honor active view here too
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // 12-Aug-2025, tatu: [databind#5237] Mergeable properties need
                 //    special handling: must defer deserialization until POJO
                 //    is constructed.
@@ -871,6 +876,7 @@ public class BeanDeserializer
 
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
@@ -886,6 +892,11 @@ public class BeanDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#5971]: honor active view for creator properties here too
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp,
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
@@ -935,6 +946,11 @@ public class BeanDeserializer
             // regular property? needs buffering
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) {
+                // [databind#5969]: must honor active view here too
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 continue;
             }
