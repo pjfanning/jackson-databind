@@ -88,11 +88,11 @@ public class EnumSerializationTest
         A, B, C;
         private LowerCaseEnum() { }
         @Override
-        public String toString() { return name().toLowerCase(); }
+        public String toString() { return name().toLowerCase(Locale.ROOT); }
     }
 
     static class MapBean {
-        public Map<TestEnum,Integer> map = new HashMap<TestEnum,Integer>();
+        public Map<TestEnum,Integer> map = new HashMap<>();
 
         public void add(TestEnum key, int value) {
             map.put(key, Integer.valueOf(value));
