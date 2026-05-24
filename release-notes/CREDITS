@@ -397,6 +397,11 @@ Severin Kistler (@kistlers)
    unwrapping deserializer receives empty Object
   [3.1.4]
 
+Dmitry Sulman (@dmitrysulman)
+ * Suggested #6011: 6011: Add `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX` in
+  `MapperBuilder.configureForJackson2()`
+  [3.1.4]
+
 Gili Tzabari (@cowwoc)
  * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
    failure (unresolved forward reference)
