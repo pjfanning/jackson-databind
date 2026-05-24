@@ -371,3 +371,8 @@ Severin Kistler (@kistlers)
  * Reported #6001: Regression with `@JsonUnwrapped` from 3.0 to 3.1: custom
    unwrapping deserializer receives empty Object
   [3.1.4]
+
+Dmitry Sulman (@dmitrysulman)
+ * Suggested #6011: 6011: Add `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX` in
+  `MapperBuilder.configureForJackson2()`
+  [3.1.4]
