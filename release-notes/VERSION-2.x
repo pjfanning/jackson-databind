@@ -183,7 +183,7 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
-2.18.8 (not yet released)
+2.18.8 (28-May-2026)
 
 #5950: Improve `UUIDeserializer` error handling
  (reported by Omkhar A)
