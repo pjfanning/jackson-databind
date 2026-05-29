@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.18.8 (not yet released)
+2.18.8 (28-May-2026)
 
 #5950: Improve `UUIDeserializer` error handling
  (reported by Omkhar A)
