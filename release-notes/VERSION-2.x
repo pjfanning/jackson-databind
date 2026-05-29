@@ -20,7 +20,7 @@ Project: jackson-databind
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.4 (not yet released)
+2.21.4 (28-May-2026)
 
 #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
  (fixed by Lee Jiwon)
@@ -308,7 +308,7 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
-2.18.8 (not yet released)
+2.18.8 (28-May-2026)
 
 #5950: Improve `UUIDeserializer` error handling
  (reported by Omkhar A)
