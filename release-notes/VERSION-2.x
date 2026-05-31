@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.22.0 (not yet released)
+2.22.0 (31-May-2026)
 
 #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices are
   defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
