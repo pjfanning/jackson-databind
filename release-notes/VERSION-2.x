@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.23.0 (not yet released)
+
+No change since 2.22
+
 2.22.0 (31-May-2026)
 
 #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices are
