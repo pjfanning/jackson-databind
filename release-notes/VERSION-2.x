@@ -202,7 +202,7 @@ Not yet released:
   JSON `null` values on reading
 #3443: Do not strip generic type from `Class<C>` when resolving `JavaType`
  (contributed by Jan J)
-#3447: Deeply nested JsonNode throws StackOverflowError for toString()
+#3447: Deeply nested JsonNode throws StackOverflowError for toString() [CVE-2026-50193]
  (reported by Deniz H)
 #3475: Support use of fast double parse
  (contributed by @pjfanning)
