@@ -11,6 +11,9 @@ No changes since 3.2
 
 3.2.1 (not yet released)
 
+#6022: Follow-up to #5369: apply content @JsonInclude in
+  `StringCollectionSerializer.serializeWithType`
+ (contributed by Lee Jiwon)
 #6028: Verification of unwrapped fields should mention type containing unwrapped POJO
  (reported by Oliver D)
  (fix by @cowtowncoder, w/ Claude code)
