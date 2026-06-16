@@ -16,6 +16,7 @@ Project: jackson-databind
  [CVE-2026-54516]
  (fixed by Omkhar A)
 #5969: `@JsonView` by-passed for some "setterless" creator properties
+ [CVE-2026-54517]
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters
  (fixed by Omkhar A)
