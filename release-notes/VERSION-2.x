@@ -11,6 +11,7 @@ Project: jackson-databind
 #5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
 #5969: `@JsonView` by-passed for some "setterless" creator properties
+ [CVE-2026-54517]
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters
  (fixed by Omkhar A)
