@@ -8,7 +8,7 @@ Project: jackson-databind
 
 #5950: Improve `UUIDDeserializer` error handling
  (reported by Omkhar A)
-#5951: Improve `InetSocketAddress` deserialization
+#5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
 #5969: `@JsonView` by-passed for some "setterless" creator properties
  (fixed by Omkhar A)
