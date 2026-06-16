@@ -21,6 +21,7 @@ Project: jackson-databind
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
 #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+  [CVE-2026-54512]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
 #5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
