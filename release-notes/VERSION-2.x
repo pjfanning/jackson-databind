@@ -17,7 +17,7 @@ Project: jackson-databind
 #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
  (reported by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
-  should validate element type
+  should validate element type [CVE-2026-54513]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
 #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
