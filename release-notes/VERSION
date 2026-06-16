@@ -257,6 +257,7 @@ No changes since 3.2
  [CVE-2026-54515]
  (fixed by Omkhar A)
 #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ [CVE-2026-54516]
  (fixed by Omkhar A)
 #5969: `@JsonView` by-passed for some "setterless" creator properties
  (fixed by Omkhar A)
