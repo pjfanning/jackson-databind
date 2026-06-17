@@ -1780,7 +1780,7 @@ ctor.creator()));
      * Companion to the {@code [databind#2001]} creator-rename rescue in
      * {@link #_renameProperties}; see {@code [databind#6031]}.
      *
-     * @since 3.2
+     * @since 3.2.1
      */
     protected void _rescueCreatorAliasIgnorals()
     {
@@ -1806,7 +1806,7 @@ ctor.creator()));
      * {@code [databind#6031]} creator-alias rescue. Class-level ignorals
      * (in {@link #_classLevelIgnoredNames}) are intentionally never touched here.
      *
-     * @since 3.2
+     * @since 3.2.1
      */
     private void _rescuePerPropertyIgnoral(String name)
     {
