@@ -24,6 +24,12 @@ No change since 2.22
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
+2.21.5 (not yet released)
+
+#5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
+ [CVE-2026-54515]
+ (fixed by Omkhar A)
+
 2.21.4 (28-May-2026)
 
 #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
@@ -314,6 +320,12 @@ No changes since 2.19.2
  (reported by @seadbrane)
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
+
+2.18.9 (not yet released)
+
+#5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
+ [CVE-2026-54515]
+ (fixed by Omkhar A)
 
 2.18.8 (28-May-2026)
 
