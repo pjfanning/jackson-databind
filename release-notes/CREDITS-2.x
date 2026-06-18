@@ -1929,6 +1929,9 @@ Omkhar Arasaratnam (@omkhar)
   (2.18.8)
  * Reported #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
   (2.18.8)
+ * Contributed fix for #5962: Case-insensitive deserialization may use
+   wrong `@JsonIgnoreProperties`
+  (2.18.9)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
