@@ -125,6 +125,12 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
+2.18.9 (not yet released)
+
+#5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
+ [CVE-2026-54515]
+ (fixed by Omkhar A)
+
 2.18.8 (28-May-2026)
 
 #5950: Improve `UUIDDeserializer` error handling
