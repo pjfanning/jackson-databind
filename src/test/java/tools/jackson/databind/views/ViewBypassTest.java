@@ -22,7 +22,7 @@ public class ViewBypassTest extends DatabindTestUtil
 {
     static class PublicView {}
     static class AdminView extends PublicView {}
-
+    
     static class AccountFlags {
         public String role;
         public boolean approved;
@@ -36,7 +36,6 @@ public class ViewBypassTest extends DatabindTestUtil
      */
     static class Control {
         @JsonView(PublicView.class)  public String email;
-        @JsonView(PublicView.class)  public String password;
         @JsonView(AdminView.class)   public AccountFlags flags;
     }
 
@@ -53,8 +52,8 @@ public class ViewBypassTest extends DatabindTestUtil
     }
 
     private static final String JSON =
-            "{\"email\":\"mallory@evil.test\",\"password\":\"pw\","
-            + "\"role\":\"ADMIN\",\"approved\":true,\"creditBalance\":1000000}";
+            a2q("{'email':'mallory@evil.test','password':'pw',"
+            + "'role':'ADMIN','approved':true,'creditBalance':1000000}");
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -63,10 +62,11 @@ public class ViewBypassTest extends DatabindTestUtil
 
     @Test
     public void controlAdminViewPopulatesFlags() throws Exception {
+        String json = a2q("{'email':'a@b.com','password':'pw',"
+                        + "'flags':{'role':'ADMIN','approved':true,'creditBalance':1000000}}");
         Control result = MAPPER.readerWithView(AdminView.class)
                 .forType(Control.class)
-                .readValue("{\"email\":\"a@b.com\",\"password\":\"pw\","
-                        + "\"flags\":{\"role\":\"ADMIN\",\"approved\":true,\"creditBalance\":1000000}}");
+                .readValue(json);
         assertEquals("a@b.com", result.email);
         assertNotNull(result.flags);
         assertEquals("ADMIN", result.flags.role);
@@ -74,10 +74,11 @@ public class ViewBypassTest extends DatabindTestUtil
 
     @Test
     public void controlPublicViewLeaveFlagsNull() throws Exception {
+        String json = a2q("{'email':'mallory@evil.test','password':'pw',"
+                + "'flags':{'role':'ADMIN','approved':true,'creditBalance':1000000}}");
         Control result = MAPPER.readerWithView(PublicView.class)
                 .forType(Control.class)
-                .readValue("{\"email\":\"mallory@evil.test\",\"password\":\"pw\","
-                        + "\"flags\":{\"role\":\"ADMIN\",\"approved\":true,\"creditBalance\":1000000}}");
+                .readValue(json);
         assertEquals("mallory@evil.test", result.email);
         assertNull(result.flags,
                 "Control: @JsonView(AdminView) plain property must be null in PublicView");
