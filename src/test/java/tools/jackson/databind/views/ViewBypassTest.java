@@ -24,9 +24,9 @@ public class ViewBypassTest extends DatabindTestUtil
     static class AdminView extends PublicView {}
     
     static class AccountFlags {
-        public String role;
-        public boolean approved;
-        public long creditBalance;
+        @JsonView(AdminView.class) public String role;
+        @JsonView(AdminView.class) public boolean approved;
+        @JsonView(AdminView.class) public long creditBalance;
     }
 
     /**
@@ -62,7 +62,7 @@ public class ViewBypassTest extends DatabindTestUtil
 
     @Test
     public void controlAdminViewPopulatesFlags() throws Exception {
-        String json = a2q("{'email':'a@b.com','password':'pw',"
+        String json = a2q("{'email':'a@b.com',"
                         + "'flags':{'role':'ADMIN','approved':true,'creditBalance':1000000}}");
         Control result = MAPPER.readerWithView(AdminView.class)
                 .forType(Control.class)
