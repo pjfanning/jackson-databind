@@ -174,10 +174,10 @@ public class JDKStringLikeTypeDeserTest
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
 
-        // should we try resolving host names? That requires connectivity...
-        final String HOST = "google.com";
-        address = MAPPER.readValue(q(HOST), InetAddress.class);
-        assertEquals(HOST, address.getHostName());
+        // [databind#XXXX]: should NOT perform DNS lookup — only IP address literals accepted
+        // final String HOST = "google.com";
+        // address = MAPPER.readValue(q(HOST), InetAddress.class);
+        // assertEquals(HOST, address.getHostName());
     }
 
     @Test
