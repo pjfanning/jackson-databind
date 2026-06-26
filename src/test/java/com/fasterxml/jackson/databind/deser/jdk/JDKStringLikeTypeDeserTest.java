@@ -174,7 +174,7 @@ public class JDKStringLikeTypeDeserTest
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
 
-        // [databind#XXXX]: should NOT perform DNS lookup — only IP address literals accepted
+        // [databind#6058]: should NOT perform DNS lookup — only IP address literals accepted
         // final String HOST = "google.com";
         // address = MAPPER.readValue(q(HOST), InetAddress.class);
         // assertEquals(HOST, address.getHostName());

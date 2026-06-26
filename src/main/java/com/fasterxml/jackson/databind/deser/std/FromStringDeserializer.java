@@ -351,7 +351,7 @@ _coercedTypeDesc());
             case STD_TIME_ZONE:
                 return TimeZone.getTimeZone(value);
             case STD_INET_ADDRESS:
-                // [databind#XXXX] Prevent DNS lookup: only accept valid IP address literals
+                // [databind#6058] Prevent DNS lookup: only accept valid IP address literals
                 if (!InetAddressValidator.isInetAddress(value)) {
                     return ctxt.handleWeirdStringValue(_valueClass, value,
                             "Not a valid IP address string literal");

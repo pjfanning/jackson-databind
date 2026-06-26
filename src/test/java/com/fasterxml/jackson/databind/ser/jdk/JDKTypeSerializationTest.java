@@ -124,7 +124,7 @@ public class JDKTypeSerializationTest
     @Test
     public void testInetAddressNoDNSLookup() throws Exception
     {
-        // [databind#XXXX]: should NOT perform DNS lookup — only IP address literals accepted
+        // [databind#6058]: should NOT perform DNS lookup — only IP address literals accepted
         try {
             MAPPER.readValue(q("localhost"), InetAddress.class);
             fail("Should not pass");
