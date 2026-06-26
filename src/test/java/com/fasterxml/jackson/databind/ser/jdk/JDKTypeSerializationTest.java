@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -125,15 +124,17 @@ public class JDKTypeSerializationTest
     public void testInetAddressNoDNSLookup() throws Exception
     {
         // [databind#6058]: should NOT perform DNS lookup — only IP address literals accepted
-        try {
-            MAPPER.readValue(q("localhost"), InetAddress.class);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "Not a valid IP address string literal");
-        }
+        expectInvalidInetAddress("localhost");
+        expectInvalidInetAddress("google.com");
+        // starts off looking like an IP address (edge case)
+        expectInvalidInetAddress("1.2.3.4.example.com");
+        // punycode
+        expectInvalidInetAddress("xn--bcher-kva.example.com");
+    }
 
+    private void expectInvalidInetAddress(String address) throws Exception {
         try {
-            MAPPER.readValue(q("google.com"), InetAddress.class);
+            MAPPER.readValue(q(address), InetAddress.class);
             fail("Should not pass");
         } catch (InvalidFormatException e) {
             verifyException(e, "Not a valid IP address string literal");
