@@ -199,7 +199,8 @@ public class JDKFromStringDeserializer
         case STD_INET_ADDRESS:
             // [databind#XXXX] Prevent DNS lookup: only accept valid IP address literals
             if (!InetAddressValidator.isInetAddress(value)) {
-                throw new UnknownHostException("Not a valid IP address string literal: "+value);
+                return ctxt.handleWeirdStringValue(_valueClass, value,
+                        "Not a valid IP address string literal");
             }
             return InetAddress.getByName(value);
         case STD_INET_SOCKET_ADDRESS:

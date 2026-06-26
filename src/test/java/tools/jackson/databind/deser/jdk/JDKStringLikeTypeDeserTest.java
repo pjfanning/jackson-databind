@@ -147,14 +147,14 @@ public class JDKStringLikeTypeDeserTest
             MAPPER.readValue(q("localhost"), InetAddress.class);
             fail("Should not pass");
         } catch (InvalidFormatException e) {
-            verifyException(e, "not a valid textual representation");
+            verifyException(e, "Not a valid IP address string literal");
         }
 
         try {
             MAPPER.readValue(q("google.com"), InetAddress.class);
             fail("Should not pass");
         } catch (InvalidFormatException e) {
-            verifyException(e, "not a valid textual representation");
+            verifyException(e, "Not a valid IP address string literal");
         }
     }
 
