@@ -27,6 +27,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
   on `@JsonCreator` parameter (regression in 3.2.0)
  (reported by @ynojima)
  (fix by @cowtowncoder, w/ Claude code)
+#6043: `FAIL_ON_UNKNOWN_PROPERTIES` has no effect with `JsonFormat.Shape.ARRAY` when
+  using creator-based instantiation (such as `record`)
+ (reported by Théo S)
+ (fix by @seonwooj0810)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
 
 3.2.0 (08-Jun-2026)
 
