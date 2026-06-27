@@ -201,9 +201,17 @@ public class ExternalTypeHandler
     public Object complete(JsonParser p, DeserializationContext ctxt, Object bean)
         throws IOException
     {
+        final Class<?> activeView = ctxt.getActiveView();
         for (int i = 0, len = _properties.length; i < len; ++i) {
-            String typeId = _typeIds[i];
             final ExtTypedProperty extProp = _properties[i];
+            // 26-Jun-2026, tatu: Must honor `@JsonView` for external-type-id
+            //   properties too (see JsonViewExternalTypeIdBypassTest); otherwise
+            //   value for property not visible in active view would still get bound,
+            //   bypassing view-based filtering.
+            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
+                continue;
+            }
+            String typeId = _typeIds[i];
             if (typeId == null) {
                 TokenBuffer tokens = _tokens[i];
                 // let's allow missing both type and property (may already have been set, too)
@@ -264,9 +272,17 @@ public class ExternalTypeHandler
         // first things first: deserialize all data buffered:
         final int len = _properties.length;
         Object[] values = new Object[len];
+        final Class<?> activeView = ctxt.getActiveView();
         for (int i = 0; i < len; ++i) {
-            String typeId = _typeIds[i];
             final ExtTypedProperty extProp = _properties[i];
+            // 26-Jun-2026, tatu: Must honor `@JsonView` for external-type-id
+            //   properties too (see JsonViewExternalTypeIdBypassTest): leave value
+            //   for property not visible in active view unbound (null), so it does
+            //   not bypass view-based filtering.
+            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
+                continue;
+            }
+            String typeId = _typeIds[i];
             if (typeId == null) {
                 // let's allow missing both type and property (may already have been set, too)
                 TokenBuffer tb = _tokens[i];
@@ -329,7 +345,12 @@ public class ExternalTypeHandler
         Object bean = creator.build(ctxt, buffer);
         // third: assign non-creator properties
         for (int i = 0; i < len; ++i) {
-            SettableBeanProperty prop = _properties[i].getProperty();
+            final ExtTypedProperty extProp = _properties[i];
+            // 26-Jun-2026, tatu: also honor `@JsonView` here (see above)
+            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
+                continue;
+            }
+            SettableBeanProperty prop = extProp.getProperty();
             if (prop.getCreatorIndex() < 0) {
                 prop.set(bean, values[i]);
             }
