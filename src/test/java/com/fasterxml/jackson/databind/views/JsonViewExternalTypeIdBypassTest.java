@@ -86,6 +86,51 @@ public class JsonViewExternalTypeIdBypassTest extends DatabindTestUtil
         }
     }
 
+    // Case (3): like case (1), but the external type id "kind" is ITSELF a creator
+    // parameter ([databind#999]). The value "asset" is admin-only, but "kind" carries
+    // no view, so hiding the value must not also drop the (visible) type id property.
+    static class TypeIdCreatorContainer {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "kind",
+                visible = true)
+        @JsonSubTypes({
+                @JsonSubTypes.Type(value = PublicAsset.class, name = "pub"),
+                @JsonSubTypes.Type(value = AdminAsset.class, name = "admin")
+        })
+        @JsonView(AdminView.class)
+        public Asset asset;
+
+        public String label;
+        public String kind;
+
+        @JsonCreator
+        public TypeIdCreatorContainer(
+                @JsonProperty("label") String label,
+                @JsonProperty("kind") String kind,
+                @JsonProperty("asset") @JsonView(AdminView.class) Asset asset) {
+            this.label = label;
+            this.kind = kind;
+            this.asset = asset;
+        }
+    }
+
+    // Case (4): admin-only external-type property on a default-constructor (no
+    // @JsonCreator) bean -- exercises the other ExternalTypeHandler.complete() path.
+    static class DefaultCtorContainer {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "kind")
+        @JsonSubTypes({
+                @JsonSubTypes.Type(value = PublicAsset.class, name = "pub"),
+                @JsonSubTypes.Type(value = AdminAsset.class, name = "admin")
+        })
+        @JsonView(AdminView.class)
+        public Asset asset;
+
+        public String label;
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // Case (1): admin-only polymorphic property must NOT be bound when reading
@@ -142,5 +187,40 @@ public class JsonViewExternalTypeIdBypassTest extends DatabindTestUtil
         assertEquals("foo", asset.name);
         // ...but the admin-only field must not leak under PublicView
         assertNull(asset.secret, "Admin-only 'secret' must not leak under PublicView");
+    }
+
+    // Case (3): hiding the admin-only value must NOT drop the (non-view) type id
+    // property when the type id is itself a creator parameter ([databind#999]).
+    @Test
+    void testViewGatedValueKeepsVisibleTypeIdCreatorProp() throws Exception
+    {
+        String json = a2q("{'label':'hello','kind':'admin',"
+                + "'asset':{'name':'foo','secret':'LEAKED'}}");
+
+        TypeIdCreatorContainer result = MAPPER.readerWithView(PublicView.class)
+                .forType(TypeIdCreatorContainer.class)
+                .readValue(json);
+
+        assertEquals("hello", result.label);
+        // Admin-only value is hidden...
+        assertNull(result.asset, "Admin-only 'asset' must not be bound under PublicView");
+        // ...but the visible type id creator property must still be bound
+        assertEquals("admin", result.kind, "Visible type id 'kind' must still be bound");
+    }
+
+    // Case (4): admin-only external-type property on a default-constructor bean must
+    // also be skipped under PublicView (covers the other complete() overload).
+    @Test
+    void testViewGatedExternalTypePropertyDefaultCtor() throws Exception
+    {
+        String json = a2q("{'label':'hello','kind':'admin',"
+                + "'asset':{'name':'foo','secret':'LEAKED'}}");
+
+        DefaultCtorContainer result = MAPPER.readerWithView(PublicView.class)
+                .forType(DefaultCtorContainer.class)
+                .readValue(json);
+
+        assertEquals("hello", result.label);
+        assertNull(result.asset, "Admin-only 'asset' must not be bound under PublicView");
     }
 }
