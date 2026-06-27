@@ -25,6 +25,7 @@ No changes since 3.2
   using creator-based instantiation (such as `record`)
  (reported by Théo S)
  (fix by @seonwooj0810)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
 
 3.2.0 (08-Jun-2026)
 
@@ -258,6 +259,7 @@ No changes since 3.2
  (fix by @cowtowncoder, w/ Claude code)
 #6048: Apply content converters for String collection values (`StringCollectionDeserializer`)
  (fixed by Lee Jiwon)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
 
 3.1.4 (29-May-2026)
 
