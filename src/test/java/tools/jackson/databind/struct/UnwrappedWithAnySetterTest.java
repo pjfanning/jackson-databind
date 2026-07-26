@@ -71,6 +71,42 @@ public class UnwrappedWithAnySetterTest extends DatabindTestUtil
         }
     }
 
+    static class Inner6118 {
+        private final String name;
+        private final Map<String, Object> extra = new HashMap<>();
+
+        public Inner6118(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @JsonAnyGetter
+        public Map<String, Object> getExtra() {
+            return extra;
+        }
+
+        @JsonAnySetter
+        public void addExtra(String key, Object value) {
+            extra.put(key, value);
+        }
+    }
+
+    private static class Outer6118 {
+        @JsonUnwrapped(prefix = "a-")
+        private final Inner6118 a;
+
+        public Outer6118(Inner6118 a) {
+            this.a = a;
+        }
+
+        public Inner6118 getA() {
+            return a;
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1811]
@@ -106,5 +142,18 @@ public class UnwrappedWithAnySetterTest extends DatabindTestUtil
         // "name" from Outer is serialized directly (no prefix);
         // "age" from Inner's @JsonAnyGetter must be serialized with the "a-" prefix applied
         assertEquals(a2q("{'name':'aaa','a-age':64}"), json);
+    }
+
+    @Test
+    public void testRoundTrip6118() throws Exception
+    {
+        // https://github.com/FasterXML/jackson-databind/issues/6118
+        Outer6118 outer = new Outer6118(new Inner6118("aaa"));
+        outer.getA().addExtra("age", 64);
+        String json = MAPPER.writeValueAsString(outer);
+        assertEquals(a2q("{'a-name':'aaa','a-age':64}"), json);
+        Outer6118 outer2 = MAPPER.readValue(json, Outer6118.class);
+        assertEquals(outer.getA().getName(), outer2.getA().getName());
+        assertEquals(outer.getA().getExtra(), outer2.getA().getExtra());
     }
 }
