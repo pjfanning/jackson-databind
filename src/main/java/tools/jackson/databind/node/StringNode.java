@@ -341,6 +341,7 @@ public class StringNode
 
     protected Integer _tryParseAsInteger() {
         if (NumberInput.looksLikeValidNumber(_value)) {
+            StreamReadConstraints.defaults().validateIntegerLength(_value.length());
             try {
                 // NumberInput does not have a good match so..
                 return Integer.parseInt(_value);
@@ -353,6 +354,7 @@ public class StringNode
 
     protected Long _tryParseAsLong() {
         if (NumberInput.looksLikeValidNumber(_value)) {
+            StreamReadConstraints.defaults().validateIntegerLength(_value.length());
             try {
                 return NumberInput.parseLong(_value);
             } catch (NumberFormatException e) {
@@ -364,6 +366,7 @@ public class StringNode
 
     protected BigInteger _tryParseAsBigInteger() {
         if (NumberInput.looksLikeValidNumber(_value)) {
+            StreamReadConstraints.defaults().validateIntegerLength(_value.length());
             try {
                 return NumberInput.parseBigInteger(_value, true);
             } catch (NumberFormatException e) {
@@ -375,6 +378,7 @@ public class StringNode
 
     protected Float _tryParseAsFloat() {
         if (NumberInput.looksLikeValidNumber(_value)) {
+            StreamReadConstraints.defaults().validateFPLength(_value.length());
             try {
                 return NumberInput.parseFloat(_value, true);
             } catch (NumberFormatException e) {
@@ -386,6 +390,7 @@ public class StringNode
 
     protected Double _tryParseAsDouble() {
         if (NumberInput.looksLikeValidNumber(_value)) {
+            StreamReadConstraints.defaults().validateFPLength(_value.length());
             try {
                 return NumberInput.parseDouble(_value, true);
             } catch (NumberFormatException e) {
@@ -397,6 +402,7 @@ public class StringNode
 
     protected BigDecimal _tryParseAsBigDecimal() {
         if (NumberInput.looksLikeValidNumber(_value)) {
+            StreamReadConstraints.defaults().validateFPLength(_value.length());
             try {
                 return NumberInput.parseBigDecimal(_value, true);
             } catch (NumberFormatException e) {
