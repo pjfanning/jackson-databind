@@ -1945,6 +1945,22 @@ Aysha Afrah Ziya (@aysha-afrah26)
   (2.18.10)
  * Fixed #6116: Reject non-ASCII digits in `InetAddress` literal validation
   (2.18.10)
+ * Fixed #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float`
+   Map keys
+  (2.18.10)
+
+@waydeshi
+ * Reported #6127: Add `StreamReadConstraints` number len constraint to
+   `javax.xml.datatype.XMLGregorianCalendar` and `javax.xml.datatype.Duration`
+  (2.18.10)
+ * Reported #6129: Limit the supported URL schemes for `java.nio.file.Path`
+   deserialization
+  (2.18.10)
+
+@prvazsahnazarov
+ * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
+   base types
+  (2.18.10)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
