@@ -174,7 +174,7 @@ public abstract class BeanDeserializerBase
      * that is, when the actual type is not statically known.
      * For other types this remains null.
      */
-    protected transient ConcurrentHashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
+    protected transient volatile ConcurrentHashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
 
     /**
      * [databind#1921]: Lazily computed cache for {@link #_hasUpdateableProperties()}.
@@ -193,6 +193,16 @@ public abstract class BeanDeserializerBase
      * helper object
      */
     protected UnwrappedPropertyHandler _unwrappedPropertyHandler;
+
+    /**
+     * When this deserializer was created via {@code unwrappingDeserializer()},
+     * this holds the {@link NameTransformer} so that unknown property names
+     * can be reverse-transformed before being passed to
+     * {@code @JsonAnySetter}.
+     *
+     * @since 3.3
+     */
+    protected NameTransformer _unwrappingNameTransformer;
 
     /**
      * Handler that we need if any of properties uses external
@@ -322,6 +332,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _unwrappingNameTransformer = src._unwrappingNameTransformer;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -357,6 +368,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
 
         _unwrappedPropertyHandler = unwrapHandler;
+        _unwrappingNameTransformer = src._unwrappingNameTransformer;
         _propertyBasedCreator = propertyBasedCreator;
         _beanProperties = renamedProperties;
 
@@ -388,6 +400,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _unwrappingNameTransformer = src._unwrappingNameTransformer;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -424,7 +437,9 @@ public abstract class BeanDeserializerBase
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
-        _propertyBasedCreator = src._propertyBasedCreator;
+        // [databind#6243]: Creator must not find properties by names this variant ignores
+        _propertyBasedCreator = (src._propertyBasedCreator == null) ? null
+                : src._propertyBasedCreator.withByNameInclusion(ignorableProps, includableProps);
 
         _backRefs = src._backRefs;
         _ignorableProps = ignorableProps;
@@ -435,6 +450,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _unwrappingNameTransformer = src._unwrappingNameTransformer;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -469,6 +485,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _unwrappingNameTransformer = src._unwrappingNameTransformer;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -578,9 +595,6 @@ public abstract class BeanDeserializerBase
 
             // Second loop: contextualize, find other pieces
             for (SettableBeanProperty origProp : _beanProperties) {
-                if (skipPropertyResolution) {
-                    continue;
-                }
                 SettableBeanProperty prop = origProp;
                 ValueDeserializer<?> deser = prop.getValueDeserializer();
                 deser = ctxt.handlePrimaryContextualization(deser, prop, prop.getType());
@@ -649,9 +663,17 @@ public abstract class BeanDeserializerBase
         _propertiesContextualized = true;
 
         // "any setter" may also need to be resolved now
-        if ((_anySetter != null) && !_anySetter.hasValueDeserializer()) {
-            _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt,
-                    _anySetter.getType(), _anySetter.getProperty()));
+        if (_anySetter != null) {
+            if (!_anySetter.hasValueDeserializer()) {
+                _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt,
+                        _anySetter.getType(), _anySetter.getProperty()));
+            }
+            BeanProperty prop = _anySetter.getProperty();
+            NullValueProvider nuller = _findNullProvider(ctxt, prop,
+                    prop.getMetadata().getValueNulls(), _anySetter.getValueDeserializer());
+            if (nuller != null) {
+                _anySetter = _anySetter.withNullProvider(nuller);
+            }
         }
         // as well as delegate-based constructor:
         if (_valueInstantiator.canCreateUsingDelegate()) {
@@ -680,7 +702,8 @@ public abstract class BeanDeserializerBase
         // And now that we know CreatorProperty instances are also resolved can finally create the creator:
         if (creatorProps != null) {
             _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator,
-                    creatorProps, _beanProperties);
+                    creatorProps, _beanProperties)
+                    .withByNameInclusion(_ignorableProps, _includableProps);
         }
 
         if (extTypes != null) {
@@ -886,7 +909,8 @@ public abstract class BeanDeserializerBase
                     try {
                         SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
                         _propertyBasedCreator = PropertyBasedCreator.construct(
-                                ctxt, _valueInstantiator, creatorProps, _beanProperties);
+                                ctxt, _valueInstantiator, creatorProps, _beanProperties)
+                                .withByNameInclusion(_ignorableProps, _includableProps);
                     } finally {
                         _creatorBeingResolved = false;
                     }
@@ -1387,6 +1411,12 @@ ClassUtil.getTypeDescription(ct));
 
     @Override
     public void collectAllPropertyNamesTo(Set<String> names) {
+        collectAllPropertyNamesTo(names, new ArrayList<>());
+    }
+
+    @Override
+    public void collectAllPropertyNamesTo(Set<String> names,
+            List<NameTransformer> acceptAllTransformers) {
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
         }
@@ -1394,7 +1424,8 @@ ClassUtil.getTypeDescription(ct));
         // @JsonAlias-matched properties into this unwrapped deserializer.
         _beanProperties.collectAliasNames(names);
         if (_unwrappedPropertyHandler != null) {
-            _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names);
+            _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names,
+                    acceptAllTransformers);
         }
     }
 
@@ -1983,6 +2014,36 @@ ClassUtil.getTypeDescription(ct));
                 && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
+    @Override
+    public NameTransformer getUnwrappingNameTransformer() {
+        return _unwrappingNameTransformer;
+    }
+
+    /**
+     * [databind#6118] Helper for mapping the name of an unknown property into the key
+     * to pass to this bean's {@code @JsonAnySetter}: when this deserializer was created
+     * for {@code @JsonUnwrapped} with a prefix/suffix, the transformation has to be
+     * reversed so that the any-setter does not see the prefix/suffix.
+     *
+     * @return Key to pass to the any-setter, or {@code null} if the property must not be
+     *   passed to it: either there is no any-setter, or the name cannot have been produced
+     *   by the unwrapping transformation, meaning it is not this bean's property at all.
+     *   (all unwrapped beans are offered every unknown property, so without the latter
+     *   check each would also collect the properties meant for its siblings)
+     *
+     * @since 3.3
+     */
+    protected String _anySetterKey(String propName)
+    {
+        if (_anySetter == null) {
+            return null;
+        }
+        if (_unwrappingNameTransformer == null) {
+            return propName;
+        }
+        return _unwrappingNameTransformer.reverse(propName);
+    }
+
     /**
      * Helper method called for an unknown property, when using "vanilla"
      * processing.
@@ -1997,17 +2058,20 @@ ClassUtil.getTypeDescription(ct));
     {
         if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrBuilder, propName);
-        } else if (_anySetter != null) {
+            return;
+        }
+        final String anyKey = _anySetterKey(propName);
+        if (anyKey != null) {
             try {
                // should we consider return type of any setter?
-                _anySetter.deserializeAndSet(p, ctxt, beanOrBuilder, propName);
+                _anySetter.deserializeAndSet(p, ctxt, beanOrBuilder, anyKey);
             } catch (Exception e) {
                 throw wrapAndThrow(e, beanOrBuilder, propName, ctxt);
             }
-        } else {
-            // Unknown: let's call handler method
-            handleUnknownProperty(p, ctxt, beanOrBuilder, propName);
+            return;
         }
+        // Unknown: let's call handler method
+        handleUnknownProperty(p, ctxt, beanOrBuilder, propName);
     }
 
     /**

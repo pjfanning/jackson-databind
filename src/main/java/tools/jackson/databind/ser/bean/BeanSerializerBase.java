@@ -642,6 +642,12 @@ public abstract class BeanSerializerBase
         }
         // last but not least; may need to transmute into as-array serialization
         if (shape == JsonFormat.Shape.ARRAY) {
+            if (contextual.getFilterId() != null) {
+                return ctxt.reportBadDefinition(_beanType, String.format(
+                        "Cannot serialize %s with `@JsonFormat(shape=ARRAY)` because it also has `@JsonFilter`:"
+                                + " property filtering is not compatible with array serialization",
+                        ClassUtil.getTypeDescription(_beanType)));
+            }
             return contextual.asArraySerializer();
         }
         return contextual;
@@ -690,11 +696,14 @@ public abstract class BeanSerializerBase
 
     /**
      * Helper method for sub-classes to check if it should be possible to
-     * construct an "as-array" serializer. Returns if all of following
-     * hold true:
+     * construct an "as-array" serializer. Returns {@code false} -- that is,
+     * as-array serializer cannot be used -- if any of following holds true:
      *<ul>
-     * <li>have Object Id (may be allowed in future)</li>
-     * <li>have "any getter"</li>
+     * <li>has Object Id (may be allowed in future)</li>
+     * <li>has per-property filter (from {@code @JsonFilter}): positions in
+     *   array output are implicit, so dropping a property would shift all
+     *   values that follow it
+     *  </li>
      * </ul>
      *
      * @since 3.0
@@ -703,6 +712,8 @@ public abstract class BeanSerializerBase
         return (_objectIdWriter == null)
                 // 08-Feb-2025, tatu: [databind#4775] any-getter is fine now
                 //&& (_anyGetterWriter == null)
+                // 28-Jul-2026: as-array output cannot express per-property filtering
+                && (_propertyFilterId == null)
                 ;
     }
 
@@ -1003,7 +1014,12 @@ public abstract class BeanSerializerBase
             for (final int len = props.length; i < len; ++i) {
                 BeanPropertyWriter prop = props[i];
                 if (prop != null) { // can have nulls in filtered list
-                    filter.serializeAsProperty(bean, g, ctxt, prop);
+                    // [databind#6136]: let the writer route filtering; most defer to
+                    // the filter by name, but e.g. an any-getter unpacks its entries
+                    // so each is filtered individually, and view-based writers apply
+                    // their view check first. Done polymorphically so this works for
+                    // all writer and `PropertyFilter` implementations.
+                    prop.serializeFilteredAsProperty(bean, g, ctxt, filter);
                 }
             }
         } catch (Exception e) {
